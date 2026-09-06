@@ -165,16 +165,17 @@ class Logic:
     ###########
     def __str__(self):
         """
-        Returns the binary literal, as produced by bin().
+        Returns the hex literal, as produced by hex().
 
-        Binary rather than hex because str() is the readable form that also has to
-        stay exact: hex() collapses undefined nibbles, which would let two
-        different values compare equal wherever results are stringified.
+        Hex because str() is the readable form, and a 32-bit value as binary is
+        unreadable in a log line or an error message. It is lossy for x and z, so
+        anything that gets compared -- a result log in particular -- must call
+        bin() explicitly rather than relying on str().
 
         Returns:
-            str: The binary literal.
+            str: The hex literal.
         """
-        return self.bin()
+        return self.hex()
 
     ############
     # __repr__ #
