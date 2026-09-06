@@ -181,7 +181,7 @@ class Logic:
     ############
     def __repr__(self):
         """
-        Returns a reconstructable representation, e.g. 'Logic("10101011")'.
+        Returns an unambiguous representation, e.g. 'Logic("10101011")'.
 
         Mirrors the constructor, so eval(repr(value)) reproduces the value for every
         input including x and z.
@@ -209,7 +209,7 @@ class Logic:
     ##########
     def __eq__(self, other):
         """
-        Compares two Logic values bit for bit.
+        Returns True if both values have the same width and the same bits.
 
         This is Verilog's === rather than ==: x and z compare structurally, so
         4'bx equals 4'bx and never equals 4'bz, and the result is always a definite
@@ -320,7 +320,8 @@ class Logic:
     ###########
     def __and__(self, other):
         """
-        Bitwise AND, using Verilog's four-state truth table.
+        Returns the bitwise AND of the two values, using Verilog's four-state
+        truth table.
 
         A 0 on either side gives 0 even when the other bit is x or z. Two 1s give 1.
         Every other combination gives x, so z never appears in the result.
@@ -363,7 +364,8 @@ class Logic:
     ##########
     def __or__(self, other):
         """
-        Bitwise OR, using Verilog's four-state truth table.
+        Returns the bitwise OR of the two values, using Verilog's four-state
+        truth table.
 
         A 1 on either side gives 1 even when the other bit is x or z. Two 0s give 0.
         Every other combination gives x, so z never appears in the result.
@@ -403,7 +405,8 @@ class Logic:
     ###########
     def __xor__(self, other):
         """
-        Bitwise XOR, using Verilog's four-state truth table.
+        Returns the bitwise XOR of the two values, using Verilog's four-state
+        truth table.
 
         Any x or z on either side gives x -- unlike AND and OR, no bit value can
         dominate an unknown. Defined bits give 0 when they agree and 1 when they
@@ -444,7 +447,7 @@ class Logic:
     ##############
     def __invert__(self):
         """
-        Bitwise NOT, using Verilog's four-state truth table.
+        Returns the bitwise NOT, using Verilog's four-state truth table.
 
         0 and 1 swap; both x and z give x. Because z collapses to x, invert is not
         reversible for undefined values: ~~4'b10xz is 4'b10xx.
