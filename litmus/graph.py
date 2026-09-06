@@ -241,6 +241,18 @@ class Graph:
         else:
             return False
 
+    ############
+    # vertices #
+    ############
+    def vertices(self):
+        """
+        Returns every vertex in the graph.
+
+        Returns:
+            set: The vertices.
+        """
+        return set(self.adj)
+
     #########
     # sinks #
     #########
@@ -276,3 +288,42 @@ class Graph:
             return True
         else:
             return False
+
+    #############
+    # reachable #
+    #############
+    def reachable(self, u, depth = None, visited = None):
+        """
+        Returns every vertex reachable from u by following edges.
+
+        u itself is excluded unless a cycle leads back to it, which makes this a
+        cycle test: u is in reachable(u) exactly when u lies on a cycle.
+
+        A vertex not in the graph reaches nothing.
+
+        Args:
+            u: Starting vertex.
+            depth (int, optional): Maximum number of hops to traverse. Defaults to
+                None, meaning unlimited.
+            visited (set, optional): Vertices already reached, used by the
+                recursion. Defaults to None.
+
+        Returns:
+            set: The vertices reachable from u.
+        """
+        if visited is None:
+            visited = set()
+
+        if u not in self.adj:
+            return visited
+
+        for v in self.adj[u]:
+            if v not in visited:
+                visited.add(v)
+
+                if depth is None:
+                    self.reachable(v, depth = None, visited = visited)
+                elif depth > 0:
+                    self.reachable(v, depth = depth - 1, visited = visited)
+
+        return visited
