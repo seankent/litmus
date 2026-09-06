@@ -6,33 +6,43 @@ class Graph:
     ############
     # __init__ #
     ############
-    def __init__(self, adj = None):
+    def __init__(self):
         """
-        Constructs a directed graph.
+        Constructs an empty directed graph.
+
+        Edges are stored twice. `adj` maps each vertex to the vertices it points
+        at, and `adj_t` is its transpose, mapping each vertex to the vertices that
+        point at it. Holding both turns indegree into a lookup instead of a scan,
+        at the cost of two updates per edge. Every write goes through add_vertex,
+        add_edge and remove_edge, so the two can only fall out of step through a
+        bug in this class.
 
         Vertices are dict keys, so any hashable object can be one, and two vertices
         are the same vertex when they compare equal. A vertex type that uses value
         equality will therefore have duplicates silently collapse into a single
         node; types whose duplicates must stay distinct have to keep Python's
         default identity equality.
-
-        Args:
-            adj (dict, optional): Adjacency dict of vertex to set of successors.
-                Defaults to an empty graph.
         """
-        self.adj = adj or {}
+        self.adj = {}
+        self.adj_t = {}
 
     ############
     # __repr__ #
     ############
     def __repr__(self):
         """
-        Returns an unambiguous representation, e.g. Graph({'a': {'b'}}).
+        Returns an unambiguous representation, e.g. <Graph: 3 vertices, 2 edges>.
 
-        This round-trips only when every vertex has an evaluable repr, which is not
-        the case for vertex types relying on the default object repr.
+        This does not round-trip. A graph is built up with add_vertex and add_edge
+        rather than constructed from its contents, so there is no expression to
+        show. Use str() to see the edges themselves.
         """
-        return f"Graph({self.adj})"
+        edges = 0
+
+        for u in self.adj:
+            edges += len(self.adj[u])
+
+        return f"<Graph: {len(self.adj)} vertices, {edges} edges>"
 
     ###########
     # __str__ #
@@ -40,6 +50,9 @@ class Graph:
     def __str__(self):
         """
         Returns the adjacency dict as a string.
+
+        Only the forward direction is shown, since the transpose holds the same
+        edges the other way round.
         """
         return f"{self.adj}"
 
@@ -84,6 +97,7 @@ class Graph:
         """
         if u not in self.adj:
             self.adj[u] = set()
+            self.adj_t[u] = set()
 
     #################
     # remove_vertex #
@@ -92,18 +106,24 @@ class Graph:
         """
         Removes a vertex and every edge touching it.
 
-        Removing a vertex that is not in the graph is a no-op. Only successors are
-        stored, so finding the edges that point at u means scanning every vertex,
-        making this O(V) rather than O(degree).
+        Removing a vertex that is not in the graph is a no-op. The transpose gives
+        the vertices pointing at u directly, so this costs O(degree) rather than a
+        scan of the whole graph.
 
         Args:
             u: Vertex to remove.
         """
-        for v in self.adj:
-            self.remove_edge(v, u)
+        if u not in self.adj:
+            return
 
-        if u in self.adj:
-            self.adj.pop(u)
+        for v in self.adj[u]:
+            self.adj_t[v].discard(u)
+
+        for v in self.adj_t[u]:
+            self.adj[v].discard(u)
+
+        self.adj.pop(u)
+        self.adj_t.pop(u)
 
     ############
     # add_edge #
@@ -126,7 +146,9 @@ class Graph:
             raise KeyError(f"Vertex '{u}' not in graph.")
         if v not in self.adj:
             raise KeyError(f"Vertex '{v}' not in graph.")
+
         self.adj[u].add(v)
+        self.adj_t[v].add(u)
 
     ###############
     # remove_edge #
@@ -135,20 +157,23 @@ class Graph:
         """
         Removes the directed edge from u to v.
 
-        Removing an edge that is not there is a no-op, but the source vertex must
-        exist.
+        Removing an edge that is not there is a no-op, but both vertices must
+        exist, as for add_edge.
 
         Args:
             u: Source vertex.
             v: Destination vertex.
 
         Raises:
-            KeyError: If u is not in the graph.
+            KeyError: If either vertex is not in the graph.
         """
         if u not in self.adj:
             raise KeyError(f"Vertex '{u}' not in graph.")
+        if v not in self.adj:
+            raise KeyError(f"Vertex '{v}' not in graph.")
 
         self.adj[u].discard(v)
+        self.adj_t[v].discard(u)
 
     ############
     # indegree #
@@ -157,16 +182,13 @@ class Graph:
         """
         Returns the number of edges arriving at u.
 
-        Only successors are stored, so this scans every vertex and is O(V), unlike
-        outdegree which is a single lookup.
-
         Args:
             u: Vertex to query.
 
         Returns:
             int: Number of incoming edges.
         """
-        return sum(1 for v in self.adj if u in self.adj[v])
+        return len(self.adj_t[u])
 
     #############
     # outdegree #
@@ -237,9 +259,6 @@ class Graph:
     def sources(self):
         """
         Returns every vertex with no incoming edges.
-
-        This calls indegree once per vertex, so it is O(V^2) where sinks() is O(V).
-        Prefer sinks() on a hot path.
 
         Returns:
             set: The source vertices.
