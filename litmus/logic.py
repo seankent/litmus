@@ -264,17 +264,17 @@ class Logic:
         if len(self) != len(other):
             raise ValueError(f"Width mismatch: {len(self)} and {len(other)}.")
 
-        result = ""
+        binstr = ""
 
         for a, b in zip(self.binstr, other.binstr):
             if a == "0" or b == "0":
-                result += "0"
+                binstr += "0"
             elif a == "1" and b == "1":
-                result += "1"
+                binstr += "1"
             else:
-                result += "x"
+                binstr += "x"
 
-        return Logic(result)
+        return Logic(binstr)
 
     ##########
     # __or__ #
@@ -295,17 +295,17 @@ class Logic:
         if len(self) != len(other):
             raise ValueError(f"Width mismatch: {len(self)} and {len(other)}.")
 
-        result = ""
+        binstr = ""
 
         for a, b in zip(self.binstr, other.binstr):
             if a == "1" or b == "1":
-                result += "1"
+                binstr += "1"
             elif a == "0" and b == "0":
-                result += "0"
+                binstr += "0"
             else:
-                result += "x"
+                binstr += "x"
 
-        return Logic(result)
+        return Logic(binstr)
 
     ###########
     # __xor__ #
@@ -326,17 +326,17 @@ class Logic:
         if len(self) != len(other):
             raise ValueError(f"Width mismatch: {len(self)} and {len(other)}.")
 
-        result = ""
+        binstr = ""
 
         for a, b in zip(self.binstr, other.binstr):
             if a in {"x", "z"} or b in {"x", "z"}:
-                result += "x"
+                binstr += "x"
             elif a == b:
-                result += "0"
+                binstr += "0"
             else:
-                result += "1"
+                binstr += "1"
 
-        return Logic(result)
+        return Logic(binstr)
 
     ##############
     # __invert__ #
@@ -348,17 +348,17 @@ class Logic:
         Returns:
             Logic: The bitwise NOT, with x wherever the operand is undefined.
         """
-        result = ""
+        binstr = ""
 
         for a in self.binstr:
             if a == "0":
-                result += "1"
+                binstr += "1"
             elif a == "1":
-                result += "0"
+                binstr += "0"
             else:
-                result += "x"
+                binstr += "x"
 
-        return Logic(result)
+        return Logic(binstr)
 
     ###########
     # __add__ #
@@ -412,11 +412,11 @@ class Logic:
 
         return Logic(binstr)
 
-    #########
-    # parse #
-    #########
+    ################
+    # from_literal #
+    ################
     @classmethod
-    def parse(cls, literal):
+    def from_literal(cls, literal):
         """
         Returns a Logic parsed from a Verilog literal, e.g. 8'hab.
 
@@ -488,4 +488,25 @@ class Logic:
 
         raise ValueError(f"Cannot parse Logic value: '{literal}'")
 
+    ############
+    # from_int #
+    ############
+    @classmethod
+    def from_int(cls, value, width):
+        """
+        Returns a Logic from an integer, e.g. Logic.from_int(171, 8).
 
+        Args:
+            value (int): The value, with negative values encoded as two's complement.
+            width (int): The result width, which must be wide enough to hold the value.
+
+        Returns:
+            Logic: The value as a binary string of the given width.
+        """
+        if value < -(2**(width - 1)) or value >= 2**width:
+            raise ValueError(f"Value {value} does not fit in width {width}.")
+
+        if value < 0:
+            value += 2**width
+
+        return cls(bin(value)[2:].zfill(width))
