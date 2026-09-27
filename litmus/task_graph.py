@@ -3,6 +3,25 @@
 ###########
 from litmus.directed_acyclic_graph import DirectedAcyclicGraph
 
+###########
+# listify #
+###########
+def listify(us):
+    """
+    Returns a list holding one or many tasks.
+
+    Args:
+        us (Task | list): A single task, or a list of them.
+
+    Returns:
+        list: The tasks as a list.
+    """
+    if isinstance(us, (list, tuple, set)):
+        return list(us)
+    else:
+        return [us]
+
+
 #############
 # TaskGraph #
 #############
@@ -25,9 +44,9 @@ class TaskGraph:
         Adds tasks, leaving any already present alone.
 
         Args:
-            us (list): The tasks to add.
+            us (Task | list): The tasks to add.
         """
-        for u in us:
+        for u in listify(us):
             if u not in self.graph:
                 self.graph.add_vertex(u)
 
@@ -42,11 +61,8 @@ class TaskGraph:
             us (Task | list): The tasks that must retire first.
             vs (Task | list): The tasks that wait on them.
         """
-        if not isinstance(us, (list, tuple, set)):
-            us = [us]
-
-        if not isinstance(vs, (list, tuple, set)):
-            vs = [vs]
+        us = listify(us)
+        vs = listify(vs)
 
         self.add(us)
         self.add(vs)
@@ -63,8 +79,14 @@ class TaskGraph:
         Orders a list of tasks one after another.
 
         Args:
-            us (list): The tasks to order, first to last.
+            us (Task | list): The tasks to order, first to last. An entry that is
+                itself a list holds tasks that are ordered in parallel.
         """
+        us = listify(us)
+
+        for u in us:
+            self.add(u)
+
         for i in range(1, len(us)):
             self.then(us[i - 1], us[i])
 
@@ -179,17 +201,21 @@ class TaskGraph:
     ##########
     # retire #
     ##########
-    def retire(self, u):
+    def retire(self, us):
         """
-        Removes a completed task, freeing whatever was waiting on it.
+        Removes completed tasks, freeing whatever was waiting on them.
 
         Args:
-            u (Task): The task to remove, which must have no
-                remaining dependencies.
+            us (Task | list): The tasks to remove, which must have no remaining
+                dependencies.
         """
-        if self.graph.indegree(u) != 0:
-            raise ValueError(f"Task {u} is not ready, it still has dependencies.")
+        us = listify(us)
 
-        self.graph.remove_vertex(u)
+        for u in us:
+            if self.graph.indegree(u) != 0:
+                raise ValueError(f"Task {u} is not ready, it still has dependencies.")
+
+        for u in us:
+            self.graph.remove_vertex(u)
 
 
