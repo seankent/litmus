@@ -2,6 +2,7 @@
 # imports #
 ###########
 from cocotb.binary import BinaryValue
+from cocotb.handle import NonHierarchyIndexableObject
 from litmus.logic import Logic
 
 ##########
@@ -32,9 +33,13 @@ class Worker:
 
         Args:
             handle (SimHandle): The signal to drive.
-            value (Logic): The value to drive onto it.
+            value (Logic | list): The value to drive, shaped like the signal.
         """
-        handle.setimmediatevalue(BinaryValue(value.binstr))
+        if type(handle) is NonHierarchyIndexableObject:
+            for i in range(len(handle)):
+                self.set(handle[i], value[i])
+        else:
+            handle.setimmediatevalue(BinaryValue(value.binstr))
 
     #######
     # get #
@@ -47,9 +52,17 @@ class Worker:
             handle (SimHandle): The signal to sample.
 
         Returns:
-            Logic: The current value, including any x or z.
+            Logic | list: The current value, shaped like the signal.
         """
-        return Logic(handle.value.binstr.lower())
+        if type(handle) is NonHierarchyIndexableObject:
+            values = []
+
+            for i in range(len(handle)):
+                values.append(self.get(handle[i]))
+
+            return values
+        else:
+            return Logic(handle.value.binstr.lower())
 
     #######
     # run #
