@@ -9,19 +9,6 @@ class Graph:
     def __init__(self):
         """
         Constructs an empty directed graph.
-
-        Edges are stored twice. `adj` maps each vertex to the vertices it points
-        at, and `adj_t` is its transpose, mapping each vertex to the vertices that
-        point at it. Holding both turns indegree into a lookup instead of a scan,
-        at the cost of two updates per edge. Every write goes through add_vertex,
-        add_edge and remove_edge, so the two can only fall out of step through a
-        bug in this class.
-
-        Vertices are dict keys, so any hashable object can be one, and two vertices
-        are the same vertex when they compare equal. A vertex type that uses value
-        equality will therefore have duplicates silently collapse into a single
-        node; types whose duplicates must stay distinct have to keep Python's
-        default identity equality.
         """
         self.adj = {}
         self.adj_t = {}
@@ -31,11 +18,10 @@ class Graph:
     ############
     def __repr__(self):
         """
-        Returns an unambiguous representation, e.g. <Graph: 3 vertices, 2 edges>.
+        Returns the size, e.g. <Graph: 3 vertices, 2 edges>.
 
-        This does not round-trip. A graph is built up with add_vertex and add_edge
-        rather than constructed from its contents, so there is no expression to
-        show. Use str() to see the edges themselves.
+        Returns:
+            str: The vertex and edge counts.
         """
         edges = 0
 
@@ -49,10 +35,10 @@ class Graph:
     ###########
     def __str__(self):
         """
-        Returns the adjacency dict as a string.
+        Returns the adjacency map.
 
-        Only the forward direction is shown, since the transpose holds the same
-        edges the other way round.
+        Returns:
+            str: Each vertex mapped to its successors.
         """
         return f"{self.adj}"
 
@@ -62,6 +48,9 @@ class Graph:
     def __len__(self):
         """
         Returns the number of vertices.
+
+        Returns:
+            int: The number of vertices.
         """
         return len(self.adj)
 
@@ -70,13 +59,13 @@ class Graph:
     ################
     def __contains__(self, u):
         """
-        Returns True if u is a vertex in the graph.
+        Returns True if the vertex is in the graph.
 
         Args:
-            u: Vertex to check.
+            u (hashable): The vertex to look for.
 
         Returns:
-            bool: True if u is in the graph.
+            bool: True if the vertex is in the graph.
         """
         if u in self.adj:
             return True
@@ -88,12 +77,10 @@ class Graph:
     ##############
     def add_vertex(self, u):
         """
-        Adds a vertex, if it is not already present.
-
-        Adding a vertex that already exists is a no-op and leaves its edges intact.
+        Adds a vertex, leaving it alone if already present.
 
         Args:
-            u: Vertex to add.
+            u (hashable): The vertex to add.
         """
         if u not in self.adj:
             self.adj[u] = set()
@@ -104,14 +91,10 @@ class Graph:
     #################
     def remove_vertex(self, u):
         """
-        Removes a vertex and every edge touching it.
-
-        Removing a vertex that is not in the graph is a no-op. The transpose gives
-        the vertices pointing at u directly, so this costs O(degree) rather than a
-        scan of the whole graph.
+        Removes a vertex and every edge touching it, ignoring it if absent.
 
         Args:
-            u: Vertex to remove.
+            u (hashable): The vertex to remove.
         """
         if u not in self.adj:
             return
@@ -130,17 +113,11 @@ class Graph:
     ############
     def add_edge(self, u, v):
         """
-        Adds a directed edge from u to v.
-
-        Both vertices must already exist. Adding an edge does not create them, so
-        that a typo becomes an error rather than a stray vertex.
+        Adds a directed edge from one vertex to another.
 
         Args:
-            u: Source vertex.
-            v: Destination vertex.
-
-        Raises:
-            KeyError: If either vertex is not in the graph.
+            u (hashable): The source vertex, which must be in the graph.
+            v (hashable): The target vertex, which must be in the graph.
         """
         if u not in self.adj:
             raise KeyError(f"Vertex '{u}' not in graph.")
@@ -155,17 +132,11 @@ class Graph:
     ###############
     def remove_edge(self, u, v):
         """
-        Removes the directed edge from u to v.
-
-        Removing an edge that is not there is a no-op, but both vertices must
-        exist, as for add_edge.
+        Removes a directed edge, ignoring it if absent.
 
         Args:
-            u: Source vertex.
-            v: Destination vertex.
-
-        Raises:
-            KeyError: If either vertex is not in the graph.
+            u (hashable): The source vertex, which must be in the graph.
+            v (hashable): The target vertex, which must be in the graph.
         """
         if u not in self.adj:
             raise KeyError(f"Vertex '{u}' not in graph.")
@@ -180,13 +151,13 @@ class Graph:
     ############
     def indegree(self, u):
         """
-        Returns the number of edges arriving at u.
+        Returns the number of incoming edges.
 
         Args:
-            u: Vertex to query.
+            u (hashable): The vertex to count.
 
         Returns:
-            int: Number of incoming edges.
+            int: The number of incoming edges.
         """
         return len(self.adj_t[u])
 
@@ -195,13 +166,13 @@ class Graph:
     #############
     def outdegree(self, u):
         """
-        Returns the number of edges leaving u.
+        Returns the number of outgoing edges.
 
         Args:
-            u: Vertex to query.
+            u (hashable): The vertex to count.
 
         Returns:
-            int: Number of outgoing edges.
+            int: The number of outgoing edges.
         """
         return len(self.adj[u])
 
@@ -210,13 +181,13 @@ class Graph:
     ###########
     def is_sink(self, u):
         """
-        Returns True if no edges leave u.
+        Returns True if the vertex has no outgoing edges.
 
         Args:
-            u: Vertex to query.
+            u (hashable): The vertex to test.
 
         Returns:
-            bool: True if u is a sink.
+            bool: True if the vertex has no outgoing edges.
         """
         if self.outdegree(u) == 0:
             return True
@@ -228,13 +199,13 @@ class Graph:
     #############
     def is_source(self, u):
         """
-        Returns True if no edges arrive at u.
+        Returns True if the vertex has no incoming edges.
 
         Args:
-            u: Vertex to query.
+            u (hashable): The vertex to test.
 
         Returns:
-            bool: True if u is a source.
+            bool: True if the vertex has no incoming edges.
         """
         if self.indegree(u) == 0:
             return True
@@ -249,7 +220,7 @@ class Graph:
         Returns every vertex in the graph.
 
         Returns:
-            set: The vertices.
+            set: Every vertex in the graph.
         """
         return set(self.adj)
 
@@ -261,7 +232,7 @@ class Graph:
         Returns every vertex with no outgoing edges.
 
         Returns:
-            set: The sink vertices.
+            set: Every vertex with no outgoing edges.
         """
         return {u for u in self.adj if self.is_sink(u)}
 
@@ -273,7 +244,7 @@ class Graph:
         Returns every vertex with no incoming edges.
 
         Returns:
-            set: The source vertices.
+            set: Every vertex with no incoming edges.
         """
         return {u for u in self.adj if self.is_source(u)}
 
@@ -283,6 +254,9 @@ class Graph:
     def empty(self):
         """
         Returns True if the graph has no vertices.
+
+        Returns:
+            bool: True if the graph has no vertices.
         """
         if self.adj == {}:
             return True
@@ -294,22 +268,16 @@ class Graph:
     #############
     def reachable(self, u, depth = None, visited = None):
         """
-        Returns every vertex reachable from u by following edges.
-
-        u itself is excluded unless a cycle leads back to it, which makes this a
-        cycle test: u is in reachable(u) exactly when u lies on a cycle.
-
-        A vertex not in the graph reaches nothing.
+        Returns every vertex reachable by following edges forward.
 
         Args:
-            u: Starting vertex.
-            depth (int, optional): Maximum number of hops to traverse. Defaults to
-                None, meaning unlimited.
-            visited (set, optional): Vertices already reached, used by the
-                recursion. Defaults to None.
+            u (hashable): The vertex to walk from.
+            depth (int): How many edges to follow, or None to follow all of them.
+            visited (set): Vertices already seen, carried through the recursion.
 
         Returns:
-            set: The vertices reachable from u.
+            set: Every vertex reachable from u, which excludes u itself unless it
+                sits on a cycle.
         """
         if visited is None:
             visited = set()

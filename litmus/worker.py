@@ -14,8 +14,13 @@ class Worker:
     ############
     def __init__(self, name, handles):
         """
+        Constructs a worker.
+
+        Args:
+            name (str): The name of the worker.
+            handles (dict): Signal name mapped to cocotb handle.
         """
-        self.name = name 
+        self.name = name
         self.handles = handles or {}
 
     #######
@@ -23,6 +28,11 @@ class Worker:
     #######
     def set(self, handle, value):
         """
+        Drives a value onto a signal.
+
+        Args:
+            handle (SimHandle): The signal to drive.
+            value (Logic): The value to drive onto it.
         """
         handle.setimmediatevalue(BinaryValue(value.binstr))
 
@@ -31,6 +41,13 @@ class Worker:
     #######
     def get(self, handle):
         """
+        Returns the current value of a signal.
+
+        Args:
+            handle (SimHandle): The signal to sample.
+
+        Returns:
+            Logic: The current value, including any x or z.
         """
         return Logic(handle.value.binstr.lower())
 
@@ -39,6 +56,7 @@ class Worker:
     #######
     async def run(self):
         """
+        Runs the worker, overridden by each subclass.
         """
         pass
 

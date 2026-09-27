@@ -13,20 +13,10 @@ class Logic:
     ############
     def __init__(self, binstr):
         """
-        Constructs a Logic from a raw binary string.
-
-        This is the canonical constructor and does no interpretation: `binstr` is
-        stored as-is and its length is the width. Use parse() for Verilog literals
-        such as "8'hAB". Bit 0 is the LSB, which is the *last* character of the
-        string, so "1000" is the 4-bit value 8.
+        Constructs a Logic from a binary string.
 
         Args:
-            binstr (str): The bits, MSB first, drawn from 0, 1, x and z.
-
-        Raises:
-            ValueError: If binstr is empty or holds any other character. A literal
-                passed here by mistake, such as "8'hAB", is rejected rather than
-                stored as bits.
+            binstr (str): The value as a string of 0, 1, x and z, e.g. "10xz".
         """
         if not re.fullmatch(r"[01xz]+", binstr):
             raise ValueError(f"Invalid binstr: '{binstr}'")
@@ -39,6 +29,9 @@ class Logic:
     def __len__(self):
         """
         Returns the width in bits.
+
+        Returns:
+            int: The width in bits.
         """
         return len(self.binstr)
 
@@ -47,7 +40,10 @@ class Logic:
     #########
     def undef(self):
         """
-        Returns True if any bit is x or z.
+        Returns True if the value contains x or z.
+
+        Returns:
+            bool: True if the value contains x or z.
         """
         if "x" in self.binstr or "z" in self.binstr:
             return True
@@ -59,13 +55,10 @@ class Logic:
     ############
     def __bool__(self):
         """
-        Returns the truth value, following Verilog's rule for `if`.
+        Returns True if any bit is 1 and the value is defined.
 
-        True only when the value is fully defined and nonzero. Any x or z makes the
-        whole value false, which is stricter than most simulators: they call
-        4'b10x true, because bit 1 is known to be 1 and so the value is definitely
-        nonzero. The conservative reading is used here so an unknown never silently
-        passes a condition.
+        Returns:
+            bool: True if any bit is 1 and the value is defined.
         """
         if "1" in self.binstr and not self.undef():
             return True
@@ -77,17 +70,10 @@ class Logic:
     ###########
     def __int__(self):
         """
-        Returns the value as an unsigned Python int.
-
-        The bits are read as unsigned, so 8'hff is 255 rather than -1. There is no
-        signed interpretation, because a bit vector does not carry signedness --
-        that is context the caller has.
+        Returns the unsigned integer value.
 
         Returns:
-            int: The unsigned value.
-
-        Raises:
-            ValueError: If any bit is x or z.
+            int: The unsigned integer value.
         """
         if self.undef():
             raise ValueError(f"Cannot convert '{self.binstr}' to int: contains x or z.")
@@ -99,15 +85,11 @@ class Logic:
     #######
     def hex(self):
         """
-        Returns the value as a hex literal, e.g. "8'hab".
-
-        A nibble of all z prints as z, and any other nibble containing x or z prints
-        as x, matching how simulators display %h. This is lossy for undefined
-        values -- 8'b0000001x prints as 8'h0x -- so use bin() anywhere the exact
-        bits matter, such as result logs that get compared.
+        Returns the hex literal, e.g. 8'hab.
 
         Returns:
-            str: The hex literal.
+            str: The hex literal. A nibble renders as z if all four bits are z,
+                or x if any bit is undefined.
         """
         txt = ""
 
@@ -128,11 +110,7 @@ class Logic:
     #######
     def bin(self):
         """
-        Returns the value as a binary literal, e.g. "8'b10101011".
-
-        Every bit is shown exactly, including x and z, so this is the lossless form
-        and the one to use for anything that gets compared or written to a log. It
-        round-trips: parse() accepts what this produces.
+        Returns the binary literal, e.g. 8'b10101011.
 
         Returns:
             str: The binary literal.
@@ -144,16 +122,10 @@ class Logic:
     #######
     def dec(self):
         """
-        Returns the value as a decimal literal, e.g. "8'd171".
-
-        Decimal cannot represent x or z at all, so unlike bin() and hex() this
-        raises rather than approximating. The value is unsigned, as in __int__.
+        Returns the decimal literal, e.g. 8'd171.
 
         Returns:
             str: The decimal literal.
-
-        Raises:
-            ValueError: If any bit is x or z.
         """
         if self.undef():
             raise ValueError(f"Cannot convert '{self.binstr}' to decimal: contains x or z.")
@@ -165,12 +137,7 @@ class Logic:
     ###########
     def __str__(self):
         """
-        Returns the hex literal, as produced by hex().
-
-        Hex because str() is the readable form, and a 32-bit value as binary is
-        unreadable in a log line or an error message. It is lossy for x and z, so
-        anything that gets compared -- a result log in particular -- must call
-        bin() explicitly rather than relying on str().
+        Returns the hex literal, e.g. 8'hab.
 
         Returns:
             str: The hex literal.
@@ -182,13 +149,10 @@ class Logic:
     ############
     def __repr__(self):
         """
-        Returns an unambiguous representation, e.g. 'Logic("10101011")'.
-
-        Mirrors the constructor, so eval(repr(value)) reproduces the value for every
-        input including x and z.
+        Returns the constructor call, e.g. Logic("10101011").
 
         Returns:
-            str: The representation.
+            str: The constructor call.
         """
         return f'Logic("{self.binstr}")'
 
@@ -197,11 +161,10 @@ class Logic:
     ############
     def __hash__(self):
         """
-        Returns a hash of the bits.
+        Returns the hash of the binary string.
 
-        Consistent with __eq__, which also compares bits alone. Logic is immutable,
-        so this stays valid for the object's lifetime -- the reason there is no
-        __setitem__.
+        Returns:
+            int: The hash of the binary string.
         """
         return hash(self.binstr)
 
@@ -210,23 +173,13 @@ class Logic:
     ##########
     def __eq__(self, other):
         """
-        Returns True if both values have the same width and the same bits.
-
-        This is Verilog's === rather than ==: x and z compare structurally, so
-        4'bx equals 4'bx and never equals 4'bz, and the result is always a definite
-        True or False. Width is part of the value, so 4'b0101 does not equal
-        8'b00000101 -- a width mismatch between a DUT and a reference model is a
-        bug worth catching rather than extending away.
-
-        Comparison against an int is not supported, since it would make equality
-        intransitive. Use int(value) == n instead.
+        Returns True if both values have the same width and bits.
 
         Args:
             other (Logic): The value to compare against.
 
         Returns:
-            bool: True if both the width and every bit match. NotImplemented if
-                other is not a Logic, so Python can try the reflected comparison.
+            bool: True if both values have the same width and bits.
         """
         if not isinstance(other, Logic):
             return NotImplemented
@@ -240,25 +193,13 @@ class Logic:
     ###############
     def __getitem__(self, index):
         """
-        Selects a bit or a range of bits, using Verilog numbering.
-
-        Bit 0 is the LSB, and slices are descending and inclusive on both ends, so
-        value[7:4] is the top nibble of an 8-bit value and value[3:3] is a single
-        bit. Out-of-range indices raise rather than wrapping.
-
-        Slicing is also how you narrow a value, since extend() only widens: the
-        truncation stays visible at the call site.
+        Returns a bit or a range of bits.
 
         Args:
-            index (int or slice): A bit number, or a descending slice such as 7:4.
+            index (int | slice): A bit position or an inclusive descending slice, e.g. value[7:4].
 
         Returns:
-            Logic: The selected bit or bits.
-
-        Raises:
-            IndexError: If the index or either slice bound is outside the width.
-            ValueError: If the slice ascends, carries a step, or omits a bound.
-            TypeError: If index is neither an int nor a slice.
+            Logic: The selected bits.
         """
         if isinstance(index, int):
 
@@ -291,25 +232,13 @@ class Logic:
     ##########
     def extend(self, width):
         """
-        Returns a copy zero-extended to `width` bits.
-
-        The added high bits are always 0, including for values containing x or z:
-        widening 4'b10xz to 8 gives 8'b000010xz. This models assignment to a wider
-        unsigned signal, where the upper bits are driven to constant 0, and so
-        deliberately differs from parse()'s x/z rule for literals.
-
-        Extending to the current width is a no-op, so this is safe to call when you
-        do not know whether the widths already match. Narrowing is not supported --
-        slice instead.
+        Returns the value zero-extended to a wider width.
 
         Args:
-            width (int): The result width in bits. Must be at least the current width.
+            width (int): The result width, which must be at least the current width.
 
         Returns:
-            Logic: A new Logic of the requested width.
-
-        Raises:
-            ValueError: If width is less than the current width.
+            Logic: The zero-extended value.
         """
         if width < len(self):
             raise ValueError(f"Cannot extend width {len(self)} to {width}.")
@@ -321,26 +250,13 @@ class Logic:
     ###########
     def __and__(self, other):
         """
-        Returns the bitwise AND of the two values, using Verilog's four-state
-        truth table.
-
-        A 0 on either side gives 0 even when the other bit is x or z. Two 1s give 1.
-        Every other combination gives x, so z never appears in the result.
-
-        Unlike Verilog, the narrower operand is not extended: mismatched widths are
-        an error. Verilog's rule also depends on the assignment target, which a
-        Python expression cannot see, so equal widths is the only unambiguous rule
-        available. Call extend() first when you do mean to widen.
+        Returns the bitwise AND.
 
         Args:
-            other (Logic): The right-hand operand.
+            other (Logic): Operand of the same width.
 
         Returns:
-            Logic: The result, the same width as the operands. NotImplemented if
-                other is not a Logic, so Python can try the reflected operation.
-
-        Raises:
-            ValueError: If the operands differ in width.
+            Logic: The bitwise AND, with x wherever the result is undefined.
         """
         if not isinstance(other, Logic):
             return NotImplemented
@@ -365,23 +281,13 @@ class Logic:
     ##########
     def __or__(self, other):
         """
-        Returns the bitwise OR of the two values, using Verilog's four-state
-        truth table.
-
-        A 1 on either side gives 1 even when the other bit is x or z. Two 0s give 0.
-        Every other combination gives x, so z never appears in the result.
-
-        Widths must match, as for __and__.
+        Returns the bitwise OR.
 
         Args:
-            other (Logic): The right-hand operand.
+            other (Logic): Operand of the same width.
 
         Returns:
-            Logic: The result, the same width as the operands. NotImplemented if
-                other is not a Logic.
-
-        Raises:
-            ValueError: If the operands differ in width.
+            Logic: The bitwise OR, with x wherever the result is undefined.
         """
         if not isinstance(other, Logic):
             return NotImplemented
@@ -406,24 +312,13 @@ class Logic:
     ###########
     def __xor__(self, other):
         """
-        Returns the bitwise XOR of the two values, using Verilog's four-state
-        truth table.
-
-        Any x or z on either side gives x -- unlike AND and OR, no bit value can
-        dominate an unknown. Defined bits give 0 when they agree and 1 when they
-        differ.
-
-        Widths must match, as for __and__.
+        Returns the bitwise XOR.
 
         Args:
-            other (Logic): The right-hand operand.
+            other (Logic): Operand of the same width.
 
         Returns:
-            Logic: The result, the same width as the operands. NotImplemented if
-                other is not a Logic.
-
-        Raises:
-            ValueError: If the operands differ in width.
+            Logic: The bitwise XOR, with x wherever either operand is undefined.
         """
         if not isinstance(other, Logic):
             return NotImplemented
@@ -448,13 +343,10 @@ class Logic:
     ##############
     def __invert__(self):
         """
-        Returns the bitwise NOT, using Verilog's four-state truth table.
-
-        0 and 1 swap; both x and z give x. Because z collapses to x, invert is not
-        reversible for undefined values: ~~4'b10xz is 4'b10xx.
+        Returns the bitwise NOT.
 
         Returns:
-            Logic: The result, the same width as the operand.
+            Logic: The bitwise NOT, with x wherever the operand is undefined.
         """
         result = ""
 
@@ -473,26 +365,13 @@ class Logic:
     ###########
     def __add__(self, other):
         """
-        Adds two values of the same width, wrapping on overflow.
-
-        The result is the width of the operands, so the carry is discarded:
-        8'hff + 8'd1 is 8'h00. This matches a hardware adder whose output is the
-        same width as its inputs. To keep the carry, extend() both operands first,
-        which is the explicit form of Verilog widening its expression to fit a
-        wider assignment target.
-
-        Any x or z in either operand makes the entire result x, since a single
-        unknown bit can propagate through the carry chain to every other bit.
+        Returns the sum, wrapping on overflow.
 
         Args:
-            other (Logic): The right-hand operand.
+            other (Logic): Operand of the same width.
 
         Returns:
-            Logic: The sum, the same width as the operands. NotImplemented if
-                other is not a Logic.
-
-        Raises:
-            ValueError: If the operands differ in width.
+            Logic: The sum, or all x if either operand is undefined.
         """
         if not isinstance(other, Logic):
             return NotImplemented
@@ -512,21 +391,13 @@ class Logic:
     ###########
     def __sub__(self, other):
         """
-        Subtracts two values of the same width, wrapping on underflow.
-
-        Underflow wraps as two's complement, so 8'd0 - 8'd1 is 8'hff. The result is
-        the width of the operands, and any x or z in either operand makes the
-        entire result x, as for __add__.
+        Returns the difference, wrapping on underflow.
 
         Args:
-            other (Logic): The right-hand operand.
+            other (Logic): Operand of the same width.
 
         Returns:
-            Logic: The difference, the same width as the operands. NotImplemented
-                if other is not a Logic.
-
-        Raises:
-            ValueError: If the operands differ in width.
+            Logic: The difference, or all x if either operand is undefined.
         """
         if not isinstance(other, Logic):
             return NotImplemented
@@ -547,28 +418,15 @@ class Logic:
     @classmethod
     def parse(cls, literal):
         """
-        Builds a Logic from a Verilog-style sized literal.
-
-        Accepts binary, hex and decimal, e.g. "8'b1010_1011", "8'hAB", "8'd171".
-        Underscores are ignored and case does not matter. Binary and hex may carry
-        x and z digits, and a hex x or z expands to four bits; decimal cannot.
-
-        A literal narrower than its declared width is zero-extended, or x/z-extended
-        when its leading digit is x or z, so 8'hx is all x. That rule applies to
-        literals only -- extend() always pads with 0, because widening a value is a
-        different operation from writing a constant.
-
-        An unsized string of bits is not accepted here; pass it to the constructor.
+        Returns a Logic parsed from a Verilog literal, e.g. 8'hab.
 
         Args:
-            literal (str): The literal to parse.
+            literal (str): A sized binary, hex or decimal literal, e.g. 8'b1010_1011,
+                8'hab or 8'd171. Case and underscores are ignored.
 
         Returns:
-            Logic: The parsed value, exactly as wide as the literal declares.
-
-        Raises:
-            ValueError: If the literal is malformed, carries digits that are invalid
-                for its base, or does not fit within its declared width.
+            Logic: The parsed value, zero-extended to the declared width, or
+                x/z-extended if the leading digit is x or z.
         """
         literal = literal.lower()
         literal = literal.replace("_", "")
