@@ -80,7 +80,7 @@ class Transaction(Task):
     ############
     def __repr__(self):
         """
-        Returns the constructor call, e.g. Transaction('d', {'d': Logic("00000111")}).
+        Returns the constructor call, e.g. Transaction('d', {'d': 8'h07}).
 
         Returns:
             str: The constructor call.
