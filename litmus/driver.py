@@ -34,7 +34,7 @@ class Driver(Worker):
 
                 for sig in self.handles:
                     if sig not in {"clk", "valid", "ready"}:
-                        self.set(self.handles[sig], u.payload[sig])
+                        self.set(self.handles[sig], u.sigs[sig])
             else:
                 if "valid" in self.handles:
                     self.set(self.handles["valid"], Logic("0"))
