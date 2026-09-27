@@ -3,17 +3,17 @@
 ###########
 from litmus.directed_acyclic_graph import DirectedAcyclicGraph
 
-####################
-# TransactionGraph #
-####################
-class TransactionGraph:
+#############
+# TaskGraph #
+#############
+class TaskGraph:
 
     ############
     # __init__ #
     ############
     def __init__(self):
         """
-        Constructs an empty transaction graph.
+        Constructs an empty task graph.
         """
         self.graph = DirectedAcyclicGraph()
 
@@ -22,10 +22,10 @@ class TransactionGraph:
     #######
     def add(self, us):
         """
-        Adds transactions, leaving any already present alone.
+        Adds tasks, leaving any already present alone.
 
         Args:
-            us (list): The transactions to add.
+            us (list): The tasks to add.
         """
         for u in us:
             if u not in self.graph:
@@ -36,11 +36,11 @@ class TransactionGraph:
     ########
     def then(self, us, vs):
         """
-        Orders one group of transactions before another, adding any that are missing.
+        Orders one group of tasks before another, adding any that are missing.
 
         Args:
-            us (Transaction | list): The transactions that must retire first.
-            vs (Transaction | list): The transactions that wait on them.
+            us (Task | list): The tasks that must retire first.
+            vs (Task | list): The tasks that wait on them.
         """
         if not isinstance(us, (list, tuple, set)):
             us = [us]
@@ -60,10 +60,10 @@ class TransactionGraph:
     #########
     def chain(self, us):
         """
-        Orders a list of transactions one after another.
+        Orders a list of tasks one after another.
 
         Args:
-            us (list): The transactions to order, first to last.
+            us (list): The tasks to order, first to last.
         """
         for i in range(1, len(us)):
             self.then(us[i - 1], us[i])
@@ -73,25 +73,25 @@ class TransactionGraph:
     #########
     def empty(self):
         """
-        Returns True if no transactions are left.
+        Returns True if no tasks are left.
 
         Returns:
-            bool: True if no transactions are left.
+            bool: True if no tasks are left.
         """
         return self.graph.empty()
 
-    ################
-    # transactions #
-    ################
-    def transactions(self, name):
+    #########
+    # tasks #
+    #########
+    def tasks(self, name):
         """
-        Returns every transaction with a given name.
+        Returns every task with a given name.
 
         Args:
             name (str): The worker name to match.
 
         Returns:
-            list: Every transaction with that name.
+            list: Every task with that name.
         """
         us = []
 
@@ -107,16 +107,16 @@ class TransactionGraph:
     ########
     def head(self, name):
         """
-        Returns the earliest transactions with a given name.
+        Returns the earliest tasks with a given name.
 
         Args:
             name (str): The worker name to match.
 
         Returns:
-            list: The transactions with that name that no other transaction of
-                the same name comes before, directly or indirectly.
+            list: The tasks with that name that no other task of the same name
+                comes before, directly or indirectly.
         """
-        candidates = set(self.transactions(name))
+        candidates = set(self.tasks(name))
 
         for u in list(candidates):
             if u not in candidates:
@@ -133,16 +133,16 @@ class TransactionGraph:
     ########
     def tail(self, name):
         """
-        Returns the latest transactions with a given name.
+        Returns the latest tasks with a given name.
 
         Args:
             name (str): The worker name to match.
 
         Returns:
-            list: The transactions with that name that come before no other
-                transaction of the same name, directly or indirectly.
+            list: The tasks with that name that come before no other task of
+                the same name, directly or indirectly.
         """
-        candidates = set(self.transactions(name))
+        candidates = set(self.tasks(name))
 
         for u in list(candidates):
             if u not in candidates:
@@ -159,13 +159,13 @@ class TransactionGraph:
     #########
     def ready(self, name):
         """
-        Returns the transactions with a given name that have nothing left to wait on.
+        Returns the tasks with a given name that have nothing left to wait on.
 
         Args:
             name (str): The worker name to match.
 
         Returns:
-            list: The transactions with that name and no remaining dependencies,
+            list: The tasks with that name and no remaining dependencies,
                 in arbitrary order.
         """
         us = []
@@ -181,14 +181,14 @@ class TransactionGraph:
     ##########
     def retire(self, u):
         """
-        Removes a completed transaction, freeing whatever was waiting on it.
+        Removes a completed task, freeing whatever was waiting on it.
 
         Args:
-            u (Transaction): The transaction to remove, which must have no
+            u (Task): The task to remove, which must have no
                 remaining dependencies.
         """
         if self.graph.indegree(u) != 0:
-            raise ValueError(f"Transaction {u} is not ready, it still has dependencies.")
+            raise ValueError(f"Task {u} is not ready, it still has dependencies.")
 
         self.graph.remove_vertex(u)
 

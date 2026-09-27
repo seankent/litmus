@@ -23,7 +23,7 @@ class Delayer(Worker):
 
             for u in tg.ready(self.name):
                 if u not in pending:
-                    pending[u] = u.payload["cycles"]
+                    pending[u] = u.cycles
 
             await cocotb.triggers.ReadOnly()
 

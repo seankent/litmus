@@ -43,13 +43,13 @@ class Monitor(Worker):
 
 
             if valid and ready: 
-                tr = {}
+                sigs = {}
 
                 for sig in self.handles:
                     if sig not in {"clk", "valid", "ready"}:
-                        tr[sig] = self.get(self.handles[sig])
+                        sigs[sig] = self.get(self.handles[sig])
 
-                self.log.append({"cycle": cycle, "tr": tr})
+                self.log.append({"cycle": cycle, "sigs": sigs})
 
             cycle += 1
 
