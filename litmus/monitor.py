@@ -13,12 +13,9 @@ class Monitor(Worker):
     #######
     # run #
     #######
-    async def run(self):
+    async def run(self, log):
         """
         """
-        self.log = []
-
-        cycle = 0
         while True:
             await cocotb.triggers.RisingEdge(self.handles["clk"])
             await cocotb.triggers.ReadOnly()
@@ -49,9 +46,7 @@ class Monitor(Worker):
                     if sig not in {"clk", "valid", "ready"}:
                         sigs[sig] = self.get(self.handles[sig])
 
-                self.log.append({"cycle": cycle, "sigs": sigs})
-
-            cycle += 1
+                log.append(self.name, sigs)
 
 
 
