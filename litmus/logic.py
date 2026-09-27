@@ -149,12 +149,12 @@ class Logic:
     ############
     def __repr__(self):
         """
-        Returns the constructor call, e.g. Logic("10101011").
+        Returns the hex literal, e.g. 8'hab.
 
         Returns:
-            str: The constructor call.
+            str: The hex literal, which is lossy for x and z.
         """
-        return f'Logic("{self.binstr}")'
+        return self.hex()
 
     ############
     # __hash__ #
