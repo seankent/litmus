@@ -17,9 +17,6 @@ def read(path):
 
     Returns:
         str: The file's contents.
-
-    Raises:
-        OSError: If the file cannot be opened.
     """
     with open(path) as f:
         return f.read()
@@ -35,9 +32,6 @@ def write(path, txt):
     Args:
         path (str): Path to write to.
         txt (str): Text to write.
-
-    Raises:
-        OSError: If the file cannot be written.
     """
     if os.path.dirname(path):
         os.makedirs(os.path.dirname(path), exist_ok = True)
@@ -51,17 +45,13 @@ def write(path, txt):
 #############
 def read_json(path):
     """
-    Reads a JSON file.
+    Returns the deserialized contents of a JSON file.
 
     Args:
         path (str): Path to the file.
 
     Returns:
         object: The deserialized contents.
-
-    Raises:
-        OSError: If the file cannot be opened.
-        json.JSONDecodeError: If the file is not valid JSON.
     """
     return json.loads(read(path))
 
@@ -76,9 +66,5 @@ def write_json(path, obj):
     Args:
         path (str): Path to write to.
         obj (object): JSON-serializable object.
-
-    Raises:
-        OSError: If the file cannot be written.
-        TypeError: If the object is not JSON-serializable.
     """
     write(path, json.dumps(obj, indent = 4))
