@@ -1,8 +1,7 @@
 ###########
 # imports #
 ###########
-from litmus.logic import Logic
-from litmus.worker import Worker 
+from litmus.worker import Worker
 import cocotb
 
 ###########
@@ -16,30 +15,92 @@ class Monitor(Worker):
     async def run(self, log):
         """
         """
+        pass
+
+
+################
+# LevelMonitor #
+################
+class LevelMonitor(Monitor):
+
+    #######
+    # run #
+    #######
+    async def run(self, log):
+        """
+        """
         while True:
             await cocotb.triggers.RisingEdge(self.handles["clk"])
             await cocotb.triggers.ReadOnly()
 
-            if "valid" in self.handles:
-                valid = self.get(self.handles["valid"])
+            sigs = {}
 
-                if valid.undef():
-                    print("[ERROR] 'valid' is undefined.")
-                    break 
-            else:
-                valid = Logic("1")
+            for sig in self.handles:
+                if sig != "clk":
+                    sigs[sig] = self.get(self.handles[sig])
 
-            if "ready" in self.handles:
-                ready = self.get(self.handles["ready"])
-
-                if ready.undef():
-                    print("[ERROR] 'ready' is undefined.")
-                    break 
-            else:
-                ready = Logic("1")
+            log.append(self.name, sigs)
 
 
-            if valid and ready: 
+####################
+# ValidOnlyMonitor #
+####################
+class ValidOnlyMonitor(Monitor):
+
+    #######
+    # run #
+    #######
+    async def run(self, log):
+        """
+        """
+        while True:
+            await cocotb.triggers.RisingEdge(self.handles["clk"])
+            await cocotb.triggers.ReadOnly()
+
+            valid = self.get(self.handles["valid"])
+
+            if valid.undef():
+                print("[ERROR] 'valid' is undefined.")
+                break
+
+            if valid:
+                sigs = {}
+
+                for sig in self.handles:
+                    if sig not in {"clk", "valid"}:
+                        sigs[sig] = self.get(self.handles[sig])
+
+                log.append(self.name, sigs)
+
+
+#####################
+# ValidReadyMonitor #
+#####################
+class ValidReadyMonitor(Monitor):
+
+    #######
+    # run #
+    #######
+    async def run(self, log):
+        """
+        """
+        while True:
+            await cocotb.triggers.RisingEdge(self.handles["clk"])
+            await cocotb.triggers.ReadOnly()
+
+            valid = self.get(self.handles["valid"])
+
+            if valid.undef():
+                print("[ERROR] 'valid' is undefined.")
+                break
+
+            ready = self.get(self.handles["ready"])
+
+            if ready.undef():
+                print("[ERROR] 'ready' is undefined.")
+                break
+
+            if valid and ready:
                 sigs = {}
 
                 for sig in self.handles:
@@ -47,11 +108,3 @@ class Monitor(Worker):
                         sigs[sig] = self.get(self.handles[sig])
 
                 log.append(self.name, sigs)
-
-
-
-
-
-
-
-
