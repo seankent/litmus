@@ -22,6 +22,14 @@ class Coordinator:
 
         self.init()
 
+    ########
+    # init #
+    ########
+    def init(self):
+        """
+        """
+        pass
+
     ############
     # register #
     ############
@@ -30,52 +38,29 @@ class Coordinator:
         """
         self.workers[worker.name] = worker 
 
+    ########
+    # args #
+    ########
+    def args(self, test):
+        """
+        """
+        return {}
+
     #######
     # run #
     #######
     async def run(self, test):
         """
         """
+        args = self.args(test)
+
         tasks = []
 
         for name in self.workers:
-            tasks.append(cocotb.start_soon(self.workers[name].run(**test["kwargs"].get(name, {}))))
+            tasks.append(cocotb.start_soon(self.workers[name].run(**args.get(name, {}))))
 
         await cocotb.triggers.First(*[task.join() for task in tasks])
 
         for task in tasks:
             if not task.done():
                 task.kill()
-
-        print("[INFO] The End.")
-
-
-class ExampleCoordinator(Coordinator):
-    
-    ########
-    # init #
-    ########
-    def init(self):
-        """
-        """
-        self.register(Driver(
-            name = "drv",
-            handles = {
-                "clk": cocotb.top.clk,
-                "valid": cocotb.top.valid,
-                "ready": cocotb.top.ready,
-                "data": cocotb.top.data,
-            }
-        ))
-
-        self.register(Monitor(
-            name = "mon",
-            handles = {
-                "clk": cocotb.top.clk,
-                "valid": cocotb.top.valid,
-                "ready": cocotb.top.ready,
-                "data": cocotb.top.data,
-            }
-        ))
-
-
