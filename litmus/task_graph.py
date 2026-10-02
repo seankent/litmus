@@ -2,6 +2,7 @@
 # imports #
 ###########
 from litmus.directed_acyclic_graph import DirectedAcyclicGraph
+import copy
 
 ###########
 # listify #
@@ -217,5 +218,17 @@ class TaskGraph:
 
         for u in us:
             self.graph.remove_vertex(u)
+
+    ########
+    # copy #
+    ########
+    def copy(self):
+        """
+        Returns a deep copy of the graph.
+
+        Returns:
+            TaskGraph: A deep copy of the graph.
+        """
+        return copy.deepcopy(self)
 
 
