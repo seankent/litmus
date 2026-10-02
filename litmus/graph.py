@@ -1,3 +1,7 @@
+###########
+# imports #
+###########
+import copy
 
 #########
 # Graph #
@@ -295,3 +299,15 @@ class Graph:
                     self.reachable(v, depth = depth - 1, visited = visited)
 
         return visited
+
+    ########
+    # copy #
+    ########
+    def copy(self):
+        """
+        Returns a deep copy of the graph.
+
+        Returns:
+            Graph: A deep copy of the graph.
+        """
+        return copy.deepcopy(self)
