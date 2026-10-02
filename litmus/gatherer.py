@@ -12,14 +12,14 @@ class Gatherer(Worker):
     #######
     # run #
     #######
-    async def run(self, tg, log):
+    async def run(self, task_graph, log):
         """
         """
         while True:
             await cocotb.triggers.RisingEdge(self.handles["clk"])
             await cocotb.triggers.ReadOnly()
 
-            for u in tg.ready(self.name):
+            for u in task_graph.ready(self.name):
                 sigs = {}
 
                 for sig in self.handles:
@@ -27,4 +27,4 @@ class Gatherer(Worker):
                         sigs[sig] = self.get(self.handles[sig])
 
                 log.append(self.name, sigs)
-                tg.retire(u)
+                task_graph.retire(u)

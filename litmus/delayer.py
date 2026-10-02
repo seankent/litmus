@@ -13,7 +13,7 @@ class Delayer(Worker):
     #######
     # run #
     #######
-    async def run(self, tg):
+    async def run(self, task_graph):
         """
         """
         pending = {}
@@ -21,7 +21,7 @@ class Delayer(Worker):
         while True:
             await cocotb.triggers.RisingEdge(self.handles["clk"])
 
-            for u in tg.ready(self.name):
+            for u in task_graph.ready(self.name):
                 if u not in pending:
                     pending[u] = u.cycles
 
@@ -32,4 +32,4 @@ class Delayer(Worker):
 
                 if pending[u] <= 0:
                     del pending[u]
-                    tg.retire(u)
+                    task_graph.retire(u)

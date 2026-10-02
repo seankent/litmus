@@ -13,13 +13,13 @@ class Finisher(Worker):
     #######
     # run #
     #######
-    async def run(self, tg, drain = 0):
+    async def run(self, task_graph, drain = 0):
         """
         """
         while True:
             await cocotb.triggers.RisingEdge(self.handles["clk"])
 
-            if tg.empty():
+            if task_graph.empty():
                 break
 
         for _ in range(drain):
