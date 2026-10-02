@@ -13,7 +13,7 @@ class Driver(Worker):
     #######
     # run #
     #######
-    async def run(self, tg):
+    async def run(self, task_graph):
         """
         """
         pass
@@ -27,7 +27,7 @@ class LevelDriver(Driver):
     #######
     # run #
     #######
-    async def run(self, tg):
+    async def run(self, task_graph):
         """
         """
         while True:
@@ -35,7 +35,7 @@ class LevelDriver(Driver):
             await cocotb.triggers.ReadWrite()
 
             u = None
-            us = tg.ready(self.name)
+            us = task_graph.ready(self.name)
 
             if len(us) > 0:
                 u = us[0]
@@ -47,7 +47,7 @@ class LevelDriver(Driver):
             await cocotb.triggers.ReadOnly()
 
             if u is not None:
-                tg.retire(u)
+                task_graph.retire(u)
 
 
 ###################
@@ -58,7 +58,7 @@ class ValidOnlyDriver(Driver):
     #######
     # run #
     #######
-    async def run(self, tg):
+    async def run(self, task_graph):
         """
         """
         while True:
@@ -66,7 +66,7 @@ class ValidOnlyDriver(Driver):
             await cocotb.triggers.ReadWrite()
 
             u = None
-            us = tg.ready(self.name)
+            us = task_graph.ready(self.name)
 
             if len(us) > 0:
                 u = us[0]
@@ -83,7 +83,7 @@ class ValidOnlyDriver(Driver):
             await cocotb.triggers.ReadOnly()
 
             if u is not None:
-                tg.retire(u)
+                task_graph.retire(u)
 
 
 ####################
@@ -94,7 +94,7 @@ class ValidReadyDriver(Driver):
     #######
     # run #
     #######
-    async def run(self, tg):
+    async def run(self, task_graph):
         """
         """
         u = None
@@ -104,7 +104,7 @@ class ValidReadyDriver(Driver):
             await cocotb.triggers.ReadWrite()
 
             if u is None:
-                us = tg.ready(self.name)
+                us = task_graph.ready(self.name)
 
                 if len(us) > 0:
                     u = us[0]
@@ -128,5 +128,5 @@ class ValidReadyDriver(Driver):
                     break
 
                 if ready:
-                    tg.retire(u)
+                    task_graph.retire(u)
                     u = None
