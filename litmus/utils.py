@@ -59,12 +59,14 @@ def read_json(path):
 ##############
 # write_json #
 ##############
-def write_json(path, obj):
+def write_json(path, obj, default = None):
     """
     Writes an object to a JSON file, creating any missing directories.
 
     Args:
         path (str): Path to write to.
         obj (object): JSON-serializable object.
+        default (callable): Called for values JSON cannot serialize, returning
+            something it can.
     """
-    write(path, json.dumps(obj, indent = 4))
+    write(path, json.dumps(obj, indent = 4, default = default))

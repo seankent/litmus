@@ -1,6 +1,8 @@
 ###########
 # imports #
 ###########
+from litmus import utils
+from litmus.logic import Logic
 import cocotb
 
 
@@ -58,3 +60,33 @@ class Log:
                 entries.append(entry)
 
         return entries
+
+    ###########
+    # jsonify #
+    ###########
+    def jsonify(self, value):
+        """
+        Returns a Logic as its binary literal, for JSON to serialize.
+
+        Args:
+            value (Logic): The value to convert.
+
+        Returns:
+            str: The binary literal.
+        """
+        if isinstance(value, Logic):
+            return value.bin()
+        else:
+            raise TypeError(f"Cannot serialize {type(value).__name__} to JSON.")
+
+    ########
+    # dump #
+    ########
+    def dump(self, path):
+        """
+        Writes the log to a JSON file.
+
+        Args:
+            path (str): Path to write to.
+        """
+        utils.write_json(path, self.entries, default = self.jsonify)
