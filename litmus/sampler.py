@@ -4,10 +4,10 @@
 from litmus.worker import Worker
 import cocotb
 
-############
-# Gatherer #
-############
-class Gatherer(Worker):
+###########
+# Sampler #
+###########
+class Sampler(Worker):
 
     #######
     # run #
