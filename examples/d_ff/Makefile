@@ -31,4 +31,4 @@ include $(shell cocotb-config --makefiles)/Makefile.sim
 
 .PHONY: waves
 waves: sim
-	gtkwave $(SIM_BUILD)/$(TOPLEVEL).fst
+	gtkwave $(SIM_BUILD)/$(TOPLEVEL).fst &
