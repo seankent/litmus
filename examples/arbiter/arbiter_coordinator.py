@@ -2,13 +2,7 @@
 # imports #
 ###########
 import cocotb
-from litmus.clocker import Clocker
-from litmus.coordinator import Coordinator
-from litmus.delayer import Delayer
-from litmus.driver import ValidOnlyDriver
-from litmus.finisher import Finisher
-from litmus.monitor import LevelMonitor
-from litmus.watchdog import Watchdog
+import litmus
 
 
 #####
@@ -20,7 +14,7 @@ N = 4
 ######################
 # ArbiterCoordinator #
 ######################
-class ArbiterCoordinator(Coordinator):
+class ArbiterCoordinator(litmus.Coordinator):
 
     ########
     # init #
@@ -28,7 +22,7 @@ class ArbiterCoordinator(Coordinator):
     def init(self):
         """
         """
-        self.register(Clocker(
+        self.register(litmus.Clocker(
             name = "clocker",
             handles = {
                 "clk": cocotb.top.clk,
@@ -36,7 +30,7 @@ class ArbiterCoordinator(Coordinator):
         ))
 
         for i in range(N):
-            self.register(ValidOnlyDriver(
+            self.register(litmus.ValidOnlyDriver(
                 name = f"req{i}_driver",
                 handles = {
                     "clk": cocotb.top.clk,
@@ -44,7 +38,7 @@ class ArbiterCoordinator(Coordinator):
                 },
             ))
 
-        self.register(LevelMonitor(
+        self.register(litmus.LevelMonitor(
             name = "monitor",
             handles = {
                 "clk": cocotb.top.clk,
@@ -53,21 +47,21 @@ class ArbiterCoordinator(Coordinator):
             },
         ))
 
-        self.register(Delayer(
+        self.register(litmus.Delayer(
             name = "delayer",
             handles = {
                 "clk": cocotb.top.clk,
             },
         ))
 
-        self.register(Finisher(
+        self.register(litmus.Finisher(
             name = "finisher",
             handles = {
                 "clk": cocotb.top.clk,
             },
         ))
 
-        self.register(Watchdog(
+        self.register(litmus.Watchdog(
             name = "watchdog",
             handles = {
                 "clk": cocotb.top.clk,

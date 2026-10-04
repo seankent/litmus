@@ -2,9 +2,9 @@
 # imports #
 ###########
 import cocotb
+import litmus
 import os
 from arbiter_coordinator import ArbiterCoordinator
-from litmus.log import Log
 import sanity_task_graph
 
 
@@ -15,7 +15,7 @@ import sanity_task_graph
 async def test(top):
     coordinator = ArbiterCoordinator()
 
-    log = Log()
+    log = litmus.Log()
     task_graph = sanity_task_graph.task_graph.copy()
 
     test = {

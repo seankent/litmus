@@ -1,21 +1,20 @@
 ###########
 # imports #
 ###########
-from litmus.task import Transaction, Delay
-from litmus.task_graph import TaskGraph
+import litmus
 
 
 #######
 # req #
 #######
 def req(i):
-    return Transaction(f"req{i}_driver", {})
+    return litmus.Transaction(f"req{i}_driver", {})
 
 
 ##############
 # task_graph #
 ##############
-task_graph = TaskGraph()
+task_graph = litmus.TaskGraph()
 
 task_graph.chain([
     [
@@ -31,7 +30,7 @@ task_graph.chain([
     [
         req(1),
     ],
-    Delay("delayer", 1),
+    litmus.Delay("delayer", 1),
     [
         req(2),
         req(1),
