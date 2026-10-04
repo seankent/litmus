@@ -2,8 +2,8 @@
 # imports #
 ###########
 import cocotb
+import litmus
 import os
-from litmus.log import Log
 from ram_coordinator import RamCoordinator
 import sanity_task_graph
 
@@ -15,7 +15,7 @@ import sanity_task_graph
 async def test(top):
     coordinator = RamCoordinator()
 
-    log = Log()
+    log = litmus.Log()
     task_graph = sanity_task_graph.task_graph.copy()
 
     test = {

@@ -2,19 +2,13 @@
 # imports #
 ###########
 import cocotb
-from litmus.clocker import Clocker
-from litmus.coordinator import Coordinator
-from litmus.delayer import Delayer
-from litmus.driver import LevelDriver, ValidOnlyDriver
-from litmus.finisher import Finisher
-from litmus.monitor import LevelMonitor
-from litmus.watchdog import Watchdog
+import litmus
 
 
 ##################
 # DffCoordinator #
 ##################
-class DffCoordinator(Coordinator):
+class DffCoordinator(litmus.Coordinator):
 
     ########
     # init #
@@ -22,14 +16,14 @@ class DffCoordinator(Coordinator):
     def init(self):
         """
         """
-        self.register(Clocker(
+        self.register(litmus.Clocker(
             name = "clocker",
             handles = {
                 "clk": cocotb.top.clk,
             },
         ))
 
-        self.register(LevelDriver(
+        self.register(litmus.LevelDriver(
             name = "rst_driver",
             handles = {
                 "clk": cocotb.top.clk,
@@ -37,7 +31,7 @@ class DffCoordinator(Coordinator):
             },
         ))
 
-        self.register(ValidOnlyDriver(
+        self.register(litmus.ValidOnlyDriver(
             name = "d_driver",
             handles = {
                 "clk": cocotb.top.clk,
@@ -46,7 +40,7 @@ class DffCoordinator(Coordinator):
             },
         ))
 
-        self.register(LevelMonitor(
+        self.register(litmus.LevelMonitor(
             name = "q_monitor",
             handles = {
                 "clk": cocotb.top.clk,
@@ -54,21 +48,21 @@ class DffCoordinator(Coordinator):
             },
         ))
 
-        self.register(Delayer(
+        self.register(litmus.Delayer(
             name = "delayer",
             handles = {
                 "clk": cocotb.top.clk,
             },
         ))
 
-        self.register(Finisher(
+        self.register(litmus.Finisher(
             name = "finisher",
             handles = {
                 "clk": cocotb.top.clk,
             },
         ))
 
-        self.register(Watchdog(
+        self.register(litmus.Watchdog(
             name = "watchdog",
             handles = {
                 "clk": cocotb.top.clk,
