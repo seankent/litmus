@@ -128,3 +128,10 @@ class Delay(Task):
         return f"Delay({self.name!r}, {self.cycles!r})"
 
 
+##########
+# Sample #
+##########
+class Sample(Task):
+    pass
+
+

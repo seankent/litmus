@@ -2,7 +2,7 @@
 # imports #
 ###########
 from litmus.logic import Logic
-from litmus.task import Task, Transaction
+from litmus.task import Sample, Transaction
 from litmus.task_graph import TaskGraph
 
 
@@ -42,7 +42,7 @@ task_graph.chain([
             Logic.from_int(0x04, 8),
         ],
     }),
-    Task("gatherer"),
+    Sample("sampler"),
     rd(0),
     rd(1),
     rd(2),
@@ -55,5 +55,5 @@ task_graph.chain([
     rd(1),
     rd(2),
     rd(3),
-    Task("gatherer"),
+    Sample("sampler"),
 ])

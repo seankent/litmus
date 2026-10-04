@@ -6,7 +6,7 @@ from litmus.clocker import Clocker
 from litmus.coordinator import Coordinator
 from litmus.driver import LevelDriver, ValidOnlyDriver
 from litmus.finisher import Finisher
-from litmus.gatherer import Gatherer
+from litmus.sampler import Sampler
 from litmus.monitor import ValidOnlyMonitor
 from litmus.watchdog import Watchdog
 
@@ -59,8 +59,8 @@ class RamCoordinator(Coordinator):
             },
         ))
 
-        self.register(Gatherer(
-            name = "gatherer",
+        self.register(Sampler(
+            name = "sampler",
             handles = {
                 "clk": cocotb.top.clk,
                 "memory": cocotb.top.dut.memory,
@@ -105,7 +105,7 @@ class RamCoordinator(Coordinator):
             "log": test["log"],
         }
 
-        args["gatherer"] = {
+        args["sampler"] = {
             "task_graph": test["task_graph"],
             "log": test["log"],
         }
