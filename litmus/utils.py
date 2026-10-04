@@ -1,7 +1,6 @@
 ###########
 # imports #
 ###########
-import json
 import os
 
 
@@ -38,35 +37,3 @@ def write(path, txt):
 
     with open(path, "w") as f:
         f.write(txt)
-
-
-#############
-# read_json #
-#############
-def read_json(path):
-    """
-    Returns the deserialized contents of a JSON file.
-
-    Args:
-        path (str): Path to the file.
-
-    Returns:
-        object: The deserialized contents.
-    """
-    return json.loads(read(path))
-
-
-##############
-# write_json #
-##############
-def write_json(path, obj, default = None):
-    """
-    Writes an object to a JSON file, creating any missing directories.
-
-    Args:
-        path (str): Path to write to.
-        obj (object): JSON-serializable object.
-        default (callable): Called for values JSON cannot serialize, returning
-            something it can.
-    """
-    write(path, json.dumps(obj, indent = 4, default = default))
