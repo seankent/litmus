@@ -30,7 +30,7 @@ class DffCoordinator(Coordinator):
         ))
 
         self.register(LevelDriver(
-            name = "rst",
+            name = "rst_driver",
             handles = {
                 "clk": cocotb.top.clk,
                 "rst": cocotb.top.rst,
@@ -38,7 +38,7 @@ class DffCoordinator(Coordinator):
         ))
 
         self.register(ValidOnlyDriver(
-            name = "d",
+            name = "d_driver",
             handles = {
                 "clk": cocotb.top.clk,
                 "valid": cocotb.top.en,
@@ -47,7 +47,7 @@ class DffCoordinator(Coordinator):
         ))
 
         self.register(LevelMonitor(
-            name = "q",
+            name = "q_monitor",
             handles = {
                 "clk": cocotb.top.clk,
                 "q": cocotb.top.q,
@@ -55,7 +55,7 @@ class DffCoordinator(Coordinator):
         ))
 
         self.register(Delayer(
-            name = "delay",
+            name = "delayer",
             handles = {
                 "clk": cocotb.top.clk,
             },
@@ -87,19 +87,19 @@ class DffCoordinator(Coordinator):
             "period": 2,
         }
 
-        args["rst"] = {
+        args["rst_driver"] = {
             "task_graph": test["task_graph"],
         }
 
-        args["d"] = {
+        args["d_driver"] = {
             "task_graph": test["task_graph"],
         }
 
-        args["q"] = {
+        args["q_monitor"] = {
             "log": test["log"],
         }
 
-        args["delay"] = {
+        args["delayer"] = {
             "task_graph": test["task_graph"],
         }
 
