@@ -1,8 +1,8 @@
 ###########
 # imports #
 ###########
-from cocotb.binary import BinaryValue
-from cocotb.handle import NonHierarchyIndexableObject
+from cocotb.handle import ArrayObject, Immediate
+from cocotb.types import LogicArray
 from litmus.logic import Logic
 
 ##########
@@ -35,11 +35,11 @@ class Worker:
             handle (SimHandle): The signal to drive.
             value (Logic | list): The value to drive, shaped like the signal.
         """
-        if type(handle) is NonHierarchyIndexableObject:
+        if type(handle) is ArrayObject:
             for i in range(len(handle)):
                 self.set(handle[i], value[i])
         else:
-            handle.setimmediatevalue(BinaryValue(value.binstr))
+            handle.value = Immediate(LogicArray(value.binstr))
 
     #######
     # get #
@@ -54,7 +54,7 @@ class Worker:
         Returns:
             Logic | list: The current value, shaped like the signal.
         """
-        if type(handle) is NonHierarchyIndexableObject:
+        if type(handle) is ArrayObject:
             values = []
 
             for i in range(len(handle)):
@@ -62,7 +62,7 @@ class Worker:
 
             return values
         else:
-            return Logic(handle.value.binstr.lower())
+            return Logic(str(handle.value).lower())
 
     #######
     # run #

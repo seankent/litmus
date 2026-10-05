@@ -14,7 +14,7 @@ class Clocker(Worker):
     #######
     # run #
     #######
-    async def run(self, period = 2, units = "ns"):
+    async def run(self, period = 2, unit = "ns"):
         """
         """
-        await Clock(self.handles["clk"], period, units = units).start(start_high = False)
+        await Clock(self.handles["clk"], period, unit = unit).start(start_high = False)

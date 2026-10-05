@@ -25,7 +25,7 @@ VERILOG_SOURCES += $(PWD)/ram.sv
 VERILOG_SOURCES += $(PWD)/top.sv
 
 TOPLEVEL = top
-MODULE = test
+COCOTB_TEST_MODULES = test
 
 include $(shell cocotb-config --makefiles)/Makefile.sim
 
