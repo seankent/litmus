@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "litmus"
+version = "0.1.0"
+description = "A testbench framework for cocotb."
+requires-python = ">=3.8"
+dependencies = ["cocotb>=2.1"]
+
+[tool.setuptools]
+packages = ["litmus"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
