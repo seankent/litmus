@@ -17,6 +17,7 @@ class Log:
     ############
     def __init__(self):
         """
+        Constructs an empty log.
         """
         self.entries = []
 
@@ -25,6 +26,11 @@ class Log:
     ##########
     def append(self, name, sigs):
         """
+        Adds an entry, stamped with the current simulation time.
+
+        Args:
+            name (str): The name of the worker the entry came from.
+            sigs (dict): Signal name mapped to value.
         """
         self.entries.append({
             "time": cocotb.utils.get_sim_time("ns"),
@@ -37,6 +43,10 @@ class Log:
     ###########
     def __len__(self):
         """
+        Returns the number of entries.
+
+        Returns:
+            int: The number of entries.
         """
         return len(self.entries)
 
@@ -45,6 +55,13 @@ class Log:
     ###############
     def __getitem__(self, index):
         """
+        Returns an entry or a range of entries.
+
+        Args:
+            index (int | slice): An entry position, or a slice of them.
+
+        Returns:
+            dict | list: The selected entries.
         """
         return self.entries[index]
 
@@ -53,6 +70,13 @@ class Log:
     ##########
     def filter(self, name):
         """
+        Returns every entry from a given worker.
+
+        Args:
+            name (str): The worker name to match.
+
+        Returns:
+            list: Every entry from that worker.
         """
         entries = []
 

@@ -14,6 +14,10 @@ class Monitor(Worker):
     #######
     async def run(self, log):
         """
+        Logs signal values sampled from the DUT. Overridden by each subclass.
+
+        Args:
+            log (Log): The log to write to.
         """
         pass
 
@@ -28,6 +32,10 @@ class LevelMonitor(Monitor):
     #######
     async def run(self, log):
         """
+        Logs signal values every cycle.
+
+        Args:
+            log (Log): The log to write to.
         """
         while True:
             await cocotb.triggers.RisingEdge(self.handles["clk"])
@@ -52,6 +60,10 @@ class ValidOnlyMonitor(Monitor):
     #######
     async def run(self, log):
         """
+        Logs signal values in each cycle valid is high.
+
+        Args:
+            log (Log): The log to write to.
         """
         while True:
             await cocotb.triggers.RisingEdge(self.handles["clk"])
@@ -83,6 +95,10 @@ class ValidReadyMonitor(Monitor):
     #######
     async def run(self, log):
         """
+        Logs signal values in each cycle valid and ready are both high.
+
+        Args:
+            log (Log): The log to write to.
         """
         while True:
             await cocotb.triggers.RisingEdge(self.handles["clk"])

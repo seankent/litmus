@@ -14,6 +14,11 @@ class Sampler(Worker):
     #######
     async def run(self, task_graph, log):
         """
+        Logs a snapshot of its signals for each Sample task.
+
+        Args:
+            task_graph (TaskGraph): The graph to claim tasks from.
+            log (Log): The log to write to.
         """
         while True:
             await cocotb.triggers.RisingEdge(self.handles["clk"])

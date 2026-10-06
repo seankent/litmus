@@ -15,6 +15,11 @@ class Finisher(Worker):
     #######
     async def run(self, task_graph, drain = 0):
         """
+        Ends the test once every task has retired.
+
+        Args:
+            task_graph (TaskGraph): The graph to wait on.
+            drain (int): Extra cycles to run after the graph empties.
         """
         while True:
             await cocotb.triggers.RisingEdge(self.handles["clk"])
