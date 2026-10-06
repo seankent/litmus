@@ -15,6 +15,10 @@ class Watchdog(Worker):
     #######
     async def run(self, timeout = None):
         """
+        Ends the test if it runs longer than the timeout.
+
+        Args:
+            timeout (int): Cycles to allow, or None for no limit.
         """
         cycle = 0
 

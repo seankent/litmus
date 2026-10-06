@@ -15,6 +15,11 @@ class Driver(Worker):
     #######
     async def run(self, task_graph):
         """
+        Processes Transactions, driving their signal values into the DUT. Overridden
+        by each subclass.
+
+        Args:
+            task_graph (TaskGraph): The graph to claim tasks from.
         """
         pass
 
@@ -29,6 +34,11 @@ class LevelDriver(Driver):
     #######
     async def run(self, task_graph):
         """
+        Drives signal values unconditionally. A Transaction retires in the cycle it is
+        driven.
+
+        Args:
+            task_graph (TaskGraph): The graph to claim tasks from.
         """
         while True:
             await cocotb.triggers.RisingEdge(self.handles["clk"])
@@ -60,6 +70,11 @@ class ValidOnlyDriver(Driver):
     #######
     async def run(self, task_graph):
         """
+        Drives signal values qualified by a valid signal. A Transaction retires in the
+        cycle it is driven.
+
+        Args:
+            task_graph (TaskGraph): The graph to claim tasks from.
         """
         while True:
             await cocotb.triggers.RisingEdge(self.handles["clk"])
@@ -96,6 +111,11 @@ class ValidReadyDriver(Driver):
     #######
     async def run(self, task_graph):
         """
+        Drives signal values qualified by a valid signal. A Transaction retires in the
+        cycle ready is sampled high.
+
+        Args:
+            task_graph (TaskGraph): The graph to claim tasks from.
         """
         u = None
 

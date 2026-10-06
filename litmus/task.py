@@ -50,6 +50,11 @@ class Transaction(Task):
     ############
     def __init__(self, name, sigs):
         """
+        Constructs a transaction.
+
+        Args:
+            name (str): The name of the worker that should process the transaction.
+            sigs (dict): Signal name mapped to value.
         """
         super().__init__(name)
 
@@ -98,6 +103,11 @@ class Delay(Task):
     ############
     def __init__(self, name, cycles):
         """
+        Constructs a delay.
+
+        Args:
+            name (str): The name of the worker that should process the delay.
+            cycles (int): The number of cycles to wait.
         """
         super().__init__(name)
 

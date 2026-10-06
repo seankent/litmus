@@ -15,6 +15,10 @@ class Delayer(Worker):
     #######
     async def run(self, task_graph):
         """
+        Retires Delay tasks once their cycles have elapsed.
+
+        Args:
+            task_graph (TaskGraph): The graph to claim tasks from.
         """
         pending = {}
 
