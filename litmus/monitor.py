@@ -39,7 +39,6 @@ class LevelMonitor(Monitor):
         """
         while True:
             await cocotb.triggers.RisingEdge(self.handles["clk"])
-            await cocotb.triggers.ReadOnly()
 
             sigs = {}
 
@@ -67,7 +66,6 @@ class ValidOnlyMonitor(Monitor):
         """
         while True:
             await cocotb.triggers.RisingEdge(self.handles["clk"])
-            await cocotb.triggers.ReadOnly()
 
             valid = self.get(self.handles["valid"])
 
@@ -102,7 +100,6 @@ class ValidReadyMonitor(Monitor):
         """
         while True:
             await cocotb.triggers.RisingEdge(self.handles["clk"])
-            await cocotb.triggers.ReadOnly()
 
             valid = self.get(self.handles["valid"])
 

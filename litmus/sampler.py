@@ -20,11 +20,12 @@ class Sampler(Worker):
             task_graph (TaskGraph): The graph to claim tasks from.
             log (Log): The log to write to.
         """
+        claimed = []
+
         while True:
             await cocotb.triggers.RisingEdge(self.handles["clk"])
-            await cocotb.triggers.ReadOnly()
 
-            for u in task_graph.ready(self.name):
+            for u in claimed:
                 sigs = {}
 
                 for sig in self.handles:
@@ -33,3 +34,10 @@ class Sampler(Worker):
 
                 log.append(self.name, sigs)
                 task_graph.retire(u)
+
+            claimed = []
+
+            await cocotb.triggers.ReadWrite()
+
+            for u in task_graph.ready(self.name):
+                claimed.append(u)
