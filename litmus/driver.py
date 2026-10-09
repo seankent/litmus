@@ -13,13 +13,14 @@ class Driver(Worker):
     #######
     # run #
     #######
-    async def run(self, task_graph):
+    async def run(self, task_graph, log = None):
         """
         Processes Transactions, driving their signal values into the DUT. Overridden
         by each subclass.
 
         Args:
             task_graph (TaskGraph): The graph to claim tasks from.
+            log (Log): The log to record completed Transactions in, or None to not log.
         """
         pass
 
@@ -32,12 +33,13 @@ class LevelDriver(Driver):
     #######
     # run #
     #######
-    async def run(self, task_graph):
+    async def run(self, task_graph, log = None):
         """
         Drives signal values unconditionally.
 
         Args:
             task_graph (TaskGraph): The graph to claim tasks from.
+            log (Log): The log to record completed Transactions in, or None to not log.
         """
         u = None
 
@@ -45,6 +47,9 @@ class LevelDriver(Driver):
             await cocotb.triggers.RisingEdge(self.handles["clk"])
 
             if u is not None:
+                if log is not None:
+                    log.append(self.name, u.sigs)
+
                 task_graph.retire(u)
                 u = None
 
@@ -70,12 +75,13 @@ class ValidOnlyDriver(Driver):
     #######
     # run #
     #######
-    async def run(self, task_graph):
+    async def run(self, task_graph, log = None):
         """
         Drives signal values qualified by a valid signal, with no backpressure.
 
         Args:
             task_graph (TaskGraph): The graph to claim tasks from.
+            log (Log): The log to record completed Transactions in, or None to not log.
         """
         await cocotb.triggers.ReadWrite()
 
@@ -87,6 +93,9 @@ class ValidOnlyDriver(Driver):
             await cocotb.triggers.RisingEdge(self.handles["clk"])
 
             if u is not None:
+                if log is not None:
+                    log.append(self.name, u.sigs)
+
                 task_graph.retire(u)
                 u = None
 
@@ -116,13 +125,14 @@ class ValidReadyDriver(Driver):
     #######
     # run #
     #######
-    async def run(self, task_graph):
+    async def run(self, task_graph, log = None):
         """
         Drives signal values qualified by a valid signal, holding each Transaction until
         ready is high.
 
         Args:
             task_graph (TaskGraph): The graph to claim tasks from.
+            log (Log): The log to record completed Transactions in, or None to not log.
         """
         await cocotb.triggers.ReadWrite()
 
@@ -141,6 +151,9 @@ class ValidReadyDriver(Driver):
                     break
 
                 if ready:
+                    if log is not None:
+                        log.append(self.name, u.sigs)
+
                     task_graph.retire(u)
                     u = None
 
