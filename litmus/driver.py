@@ -34,30 +34,32 @@ class LevelDriver(Driver):
     #######
     async def run(self, task_graph):
         """
-        Drives signal values unconditionally. A Transaction retires in the cycle it is
-        driven.
+        Drives signal values unconditionally.
 
         Args:
             task_graph (TaskGraph): The graph to claim tasks from.
         """
+        u = None
+
         while True:
             await cocotb.triggers.RisingEdge(self.handles["clk"])
-            await cocotb.triggers.ReadWrite()
-
-            u = None
-            us = task_graph.ready(self.name)
-
-            if len(us) > 0:
-                u = us[0]
-
-                for sig in self.handles:
-                    if sig != "clk":
-                        self.set(self.handles[sig], u.sigs[sig])
-
-            await cocotb.triggers.ReadOnly()
 
             if u is not None:
                 task_graph.retire(u)
+                u = None
+
+            await cocotb.triggers.ReadWrite()
+
+            if u is None:
+                us = task_graph.ready(self.name)
+
+                if len(us) > 0:
+                    u = us[0]
+
+            if u is not None:
+                for sig in self.handles:
+                    if sig != "clk":
+                        self.set(self.handles[sig], u.sigs[sig])
 
 
 ###################
@@ -70,21 +72,31 @@ class ValidOnlyDriver(Driver):
     #######
     async def run(self, task_graph):
         """
-        Drives signal values qualified by a valid signal. A Transaction retires in the
-        cycle it is driven.
+        Drives signal values qualified by a valid signal, with no backpressure.
 
         Args:
             task_graph (TaskGraph): The graph to claim tasks from.
         """
+        await cocotb.triggers.ReadWrite()
+
+        self.set(self.handles["valid"], Logic("0"))
+
+        u = None
+
         while True:
             await cocotb.triggers.RisingEdge(self.handles["clk"])
+
+            if u is not None:
+                task_graph.retire(u)
+                u = None
+
             await cocotb.triggers.ReadWrite()
 
-            u = None
-            us = task_graph.ready(self.name)
+            if u is None:
+                us = task_graph.ready(self.name)
 
-            if len(us) > 0:
-                u = us[0]
+                if len(us) > 0:
+                    u = us[0]
 
             if u is not None:
                 self.set(self.handles["valid"], Logic("1"))
@@ -94,11 +106,6 @@ class ValidOnlyDriver(Driver):
                         self.set(self.handles[sig], u.sigs[sig])
             else:
                 self.set(self.handles["valid"], Logic("0"))
-
-            await cocotb.triggers.ReadOnly()
-
-            if u is not None:
-                task_graph.retire(u)
 
 
 ####################
@@ -111,16 +118,32 @@ class ValidReadyDriver(Driver):
     #######
     async def run(self, task_graph):
         """
-        Drives signal values qualified by a valid signal. A Transaction retires in the
-        cycle ready is sampled high.
+        Drives signal values qualified by a valid signal, holding each Transaction until
+        ready is high.
 
         Args:
             task_graph (TaskGraph): The graph to claim tasks from.
         """
+        await cocotb.triggers.ReadWrite()
+
+        self.set(self.handles["valid"], Logic("0"))
+
         u = None
 
         while True:
             await cocotb.triggers.RisingEdge(self.handles["clk"])
+
+            if u is not None:
+                ready = self.get(self.handles["ready"])
+
+                if ready.undef():
+                    print("[ERROR] 'ready' is undefined.")
+                    break
+
+                if ready:
+                    task_graph.retire(u)
+                    u = None
+
             await cocotb.triggers.ReadWrite()
 
             if u is None:
@@ -137,16 +160,3 @@ class ValidReadyDriver(Driver):
                         self.set(self.handles[sig], u.sigs[sig])
             else:
                 self.set(self.handles["valid"], Logic("0"))
-
-            await cocotb.triggers.ReadOnly()
-
-            if u is not None:
-                ready = self.get(self.handles["ready"])
-
-                if ready.undef():
-                    print("[ERROR] 'ready' is undefined.")
-                    break
-
-                if ready:
-                    task_graph.retire(u)
-                    u = None
