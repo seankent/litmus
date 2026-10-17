@@ -69,10 +69,6 @@ class ValidOnlyMonitor(Monitor):
 
             valid = self.get(self.handles["valid"])
 
-            if valid.undef():
-                print("[ERROR] 'valid' is undefined.")
-                break
-
             if valid:
                 sigs = {}
 
@@ -102,16 +98,7 @@ class ValidReadyMonitor(Monitor):
             await cocotb.triggers.RisingEdge(self.handles["clk"])
 
             valid = self.get(self.handles["valid"])
-
-            if valid.undef():
-                print("[ERROR] 'valid' is undefined.")
-                break
-
             ready = self.get(self.handles["ready"])
-
-            if ready.undef():
-                print("[ERROR] 'ready' is undefined.")
-                break
 
             if valid and ready:
                 sigs = {}
