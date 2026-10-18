@@ -4,6 +4,20 @@
 import litmus
 
 
+########
+# init #
+########
+def init(wr_prob, rd_prob, lo, hi):
+    return litmus.Transaction("init_driver", {
+        "wr_stall_prob": litmus.Logic.from_int(wr_prob, 32),
+        "wr_stall_min": litmus.Logic.from_int(lo, 32),
+        "wr_stall_max": litmus.Logic.from_int(hi, 32),
+        "rd_stall_prob": litmus.Logic.from_int(rd_prob, 32),
+        "rd_stall_min": litmus.Logic.from_int(lo, 32),
+        "rd_stall_max": litmus.Logic.from_int(hi, 32),
+    })
+
+
 ######
 # wr #
 ######
@@ -19,6 +33,7 @@ def wr(data):
 task_graph = litmus.TaskGraph()
 
 task_graph.chain([
+    init(50, 50, 1, 3),
     litmus.Transaction("rst_driver", {"rst": litmus.Logic.from_literal("1'b1")}),
     litmus.Transaction("rst_driver", {"rst": litmus.Logic.from_literal("1'b0")}),
 ])
