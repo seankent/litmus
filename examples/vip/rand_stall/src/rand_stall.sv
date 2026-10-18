@@ -1,7 +1,7 @@
 //==============================================
-// rand_pipe
+// rand_stall
 //==============================================
-module rand_pipe
+module rand_stall
 #(
     parameter WIDTH = 1,
     parameter HOLD_DATA = 0
