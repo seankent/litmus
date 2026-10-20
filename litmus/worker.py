@@ -41,6 +41,22 @@ class Worker:
         else:
             handle.value = Immediate(LogicArray(value.binstr))
 
+    ########
+    # setx #
+    ########
+    def setx(self, handle):
+        """
+        Drives x onto a signal.
+
+        Args:
+            handle (SimHandle): The signal to drive.
+        """
+        if type(handle) is ArrayObject:
+            for i in range(len(handle)):
+                self.setx(handle[i])
+        else:
+            handle.value = Immediate(LogicArray("x" * len(handle)))
+
     #######
     # get #
     #######

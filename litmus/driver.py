@@ -87,6 +87,10 @@ class ValidOnlyDriver(Driver):
 
         self.set(self.handles["valid"], Logic("0"))
 
+        for sig in self.handles:
+            if sig not in {"clk", "valid"}:
+                self.setx(self.handles[sig])
+
         u = None
 
         while True:
@@ -116,6 +120,10 @@ class ValidOnlyDriver(Driver):
             else:
                 self.set(self.handles["valid"], Logic("0"))
 
+                for sig in self.handles:
+                    if sig not in {"clk", "valid"}:
+                        self.setx(self.handles[sig])
+
 
 ####################
 # ValidReadyDriver #
@@ -137,6 +145,10 @@ class ValidReadyDriver(Driver):
         await cocotb.triggers.ReadWrite()
 
         self.set(self.handles["valid"], Logic("0"))
+
+        for sig in self.handles:
+            if sig not in {"clk", "valid", "ready"}:
+                self.setx(self.handles[sig])
 
         u = None
 
@@ -173,3 +185,7 @@ class ValidReadyDriver(Driver):
                         self.set(self.handles[sig], u.sigs[sig])
             else:
                 self.set(self.handles["valid"], Logic("0"))
+
+                for sig in self.handles:
+                    if sig not in {"clk", "valid", "ready"}:
+                        self.setx(self.handles[sig])
