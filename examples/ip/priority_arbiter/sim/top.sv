@@ -14,9 +14,9 @@ module top
     initial clk = 1'b0;
 
     //==============================
-    // dut
+    // u_dut
     //==============================
-    priority_arbiter #(.N(N)) dut
+    priority_arbiter #(.N(N)) u_dut
     (
         .req(req),
         .gnt(gnt)

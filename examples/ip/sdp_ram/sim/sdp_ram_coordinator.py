@@ -27,7 +27,7 @@ class SdpRamCoordinator(litmus.Coordinator):
             name = "init_driver",
             handles = {
                 "clk": cocotb.top.clk,
-                "memory": cocotb.top.dut.memory,
+                "memory": cocotb.top.u_dut.memory,
             },
         ))
 
@@ -64,7 +64,7 @@ class SdpRamCoordinator(litmus.Coordinator):
             name = "sampler",
             handles = {
                 "clk": cocotb.top.clk,
-                "memory": cocotb.top.dut.memory,
+                "memory": cocotb.top.u_dut.memory,
             },
         ))
 

@@ -17,9 +17,9 @@ module top
     logic [WIDTH-1:0] rd_data;
 
     //==============================
-    // dut
+    // u_dut
     //==============================
-    sdp_ram #(.WIDTH(WIDTH), .DEPTH(DEPTH)) dut
+    sdp_ram #(.WIDTH(WIDTH), .DEPTH(DEPTH)) u_dut
     (
         .clk(clk),
         .we(we),

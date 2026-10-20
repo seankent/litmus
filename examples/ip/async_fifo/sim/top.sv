@@ -32,9 +32,9 @@ module top
     assign tb_rd_ready = 1'b1;
 
     //==============================
-    // dut
+    // u_dut
     //==============================
-    async_fifo #(.WIDTH(WIDTH), .DEPTH_LOG2(DEPTH_LOG2)) dut
+    async_fifo #(.WIDTH(WIDTH), .DEPTH_LOG2(DEPTH_LOG2)) u_dut
     (
         .wr_clk(wr_clk),
         .wr_rst(wr_rst),
@@ -49,9 +49,9 @@ module top
     );
 
     //==============================
-    // wr_rand_stall
+    // u_rand_stall_wr
     //==============================
-    rand_stall #(.WIDTH(WIDTH)) wr_rand_stall
+    rand_stall #(.WIDTH(WIDTH)) u_rand_stall_wr
     (
         .clk(wr_clk),
         .in_valid(tb_wr_valid),
@@ -63,9 +63,9 @@ module top
     );
 
     //==============================
-    // rd_rand_stall
+    // u_rand_stall_rd
     //==============================
-    rand_stall #(.WIDTH(WIDTH)) rd_rand_stall
+    rand_stall #(.WIDTH(WIDTH)) u_rand_stall_rd
     (
         .clk(rd_clk),
         .in_valid(rd_valid),
