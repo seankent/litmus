@@ -64,12 +64,12 @@ class AsyncFifoCoordinator(litmus.Coordinator):
             name = "init_driver",
             handles = {
                 "clk": cocotb.top.wr_clk,
-                "wr_stall_prob": cocotb.top.wr_rand_stall.stall_prob,
-                "wr_stall_min": cocotb.top.wr_rand_stall.stall_min,
-                "wr_stall_max": cocotb.top.wr_rand_stall.stall_max,
-                "rd_stall_prob": cocotb.top.rd_rand_stall.stall_prob,
-                "rd_stall_min": cocotb.top.rd_rand_stall.stall_min,
-                "rd_stall_max": cocotb.top.rd_rand_stall.stall_max,
+                "wr_stall_prob": cocotb.top.u_rand_stall_wr.stall_prob,
+                "wr_stall_min": cocotb.top.u_rand_stall_wr.stall_min,
+                "wr_stall_max": cocotb.top.u_rand_stall_wr.stall_max,
+                "rd_stall_prob": cocotb.top.u_rand_stall_rd.stall_prob,
+                "rd_stall_min": cocotb.top.u_rand_stall_rd.stall_min,
+                "rd_stall_max": cocotb.top.u_rand_stall_rd.stall_max,
             },
         ))
 

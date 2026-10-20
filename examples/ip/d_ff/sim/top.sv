@@ -14,9 +14,9 @@ module top
     logic [WIDTH-1:0] q;
     
     //==============================
-    // dut
+    // u_dut
     //==============================
-    d_ff #(.WIDTH(WIDTH), .RESET_VALUE(0)) dut
+    d_ff #(.WIDTH(WIDTH), .RESET_VALUE(0)) u_dut
     (
         .clk(clk),
         .rst(rst),

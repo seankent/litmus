@@ -30,9 +30,9 @@ module top
     assign tb_rd_ready = 1'b1;
 
     //==============================
-    // dut
+    // u_dut
     //==============================
-    fifo #(.WIDTH(WIDTH), .DEPTH(DEPTH)) dut
+    fifo #(.WIDTH(WIDTH), .DEPTH(DEPTH)) u_dut
     (
         .clk(clk),
         .rst(rst),
@@ -45,9 +45,9 @@ module top
     );
 
     //==============================
-    // wr_rand_stall
+    // u_rand_stall_wr
     //==============================
-    rand_stall #(.WIDTH(WIDTH)) wr_rand_stall
+    rand_stall #(.WIDTH(WIDTH)) u_rand_stall_wr
     (
         .clk(clk),
         .in_valid(tb_wr_valid),
@@ -59,9 +59,9 @@ module top
     );
 
     //==============================
-    // rd_rand_stall
+    // u_rand_stall_rd
     //==============================
-    rand_stall #(.WIDTH(WIDTH)) rd_rand_stall
+    rand_stall #(.WIDTH(WIDTH)) u_rand_stall_rd
     (
         .clk(clk),
         .in_valid(rd_valid),

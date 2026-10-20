@@ -28,22 +28,22 @@ module async_fifo
     logic full;
 
     logic [DEPTH_LOG2:0] wr_ptr;
-    logic [DEPTH_LOG2:0] wr_ptr__nxt;
-    logic wr_ptr__en;
+    logic [DEPTH_LOG2:0] wr_ptr_nxt;
+    logic wr_ptr_en;
 
     logic [DEPTH_LOG2:0] wr_ptr_gray;
-    logic [DEPTH_LOG2:0] wr_ptr_gray__nxt;
-    logic wr_ptr_gray__en;
+    logic [DEPTH_LOG2:0] wr_ptr_gray_nxt;
+    logic wr_ptr_gray_en;
 
     logic [DEPTH_LOG2:0] rd_ptr_gray_sync;
 
     logic [DEPTH_LOG2:0] rd_ptr;
-    logic [DEPTH_LOG2:0] rd_ptr__nxt;
-    logic rd_ptr__en;
+    logic [DEPTH_LOG2:0] rd_ptr_nxt;
+    logic rd_ptr_en;
 
     logic [DEPTH_LOG2:0] rd_ptr_gray;
-    logic [DEPTH_LOG2:0] rd_ptr_gray__nxt;
-    logic rd_ptr_gray__en;
+    logic [DEPTH_LOG2:0] rd_ptr_gray_nxt;
+    logic rd_ptr_gray_en;
 
     logic [DEPTH_LOG2:0] wr_ptr_gray_sync;
 
@@ -57,22 +57,22 @@ module async_fifo
     assign rd_valid = !empty;
     assign re = 1'b1;
 
-    assign wr_ptr__nxt = wr_ptr + 1;
-    assign wr_ptr__en = we;
+    assign wr_ptr_nxt = wr_ptr + 1;
+    assign wr_ptr_en = we;
 
-    assign wr_ptr_gray__nxt = wr_ptr__nxt ^ (wr_ptr__nxt >> 1);
-    assign wr_ptr_gray__en = we;
+    assign wr_ptr_gray_nxt = wr_ptr_nxt ^ (wr_ptr_nxt >> 1);
+    assign wr_ptr_gray_en = we;
 
-    assign rd_ptr__nxt = rd_ptr + 1;
-    assign rd_ptr__en = rd_valid & rd_ready;
+    assign rd_ptr_nxt = rd_ptr + 1;
+    assign rd_ptr_en = rd_valid & rd_ready;
 
-    assign rd_ptr_gray__nxt = rd_ptr__nxt ^ (rd_ptr__nxt >> 1);
-    assign rd_ptr_gray__en = rd_valid & rd_ready;
+    assign rd_ptr_gray_nxt = rd_ptr_nxt ^ (rd_ptr_nxt >> 1);
+    assign rd_ptr_gray_en = rd_valid & rd_ready;
 
     //==============================
-    // ram
+    // u_sdp_ram
     //==============================
-    sdp_ram #(.WIDTH(WIDTH), .DEPTH(2**DEPTH_LOG2)) ram
+    sdp_ram #(.WIDTH(WIDTH), .DEPTH(2**DEPTH_LOG2)) u_sdp_ram
     (
         .clk(wr_clk),
         .we(we),
@@ -84,57 +84,57 @@ module async_fifo
     );
 
     //==============================
-    // d_ff__rd_ptr
+    // u_d_ff_rd_ptr
     //==============================
-    d_ff #(.WIDTH(DEPTH_LOG2+1), .RESET_VALUE(0)) d_ff__rd_ptr
+    d_ff #(.WIDTH(DEPTH_LOG2+1), .RESET_VALUE(0)) u_d_ff_rd_ptr
     (
         .clk(rd_clk),
         .rst(rd_rst),
-        .en(rd_ptr__en),
-        .d(rd_ptr__nxt),
+        .en(rd_ptr_en),
+        .d(rd_ptr_nxt),
         .q(rd_ptr)
     );
 
     //==============================
-    // d_ff__wr_ptr
+    // u_d_ff_wr_ptr
     //==============================
-    d_ff #(.WIDTH(DEPTH_LOG2+1), .RESET_VALUE(0)) d_ff__wr_ptr
+    d_ff #(.WIDTH(DEPTH_LOG2+1), .RESET_VALUE(0)) u_d_ff_wr_ptr
     (
         .clk(wr_clk),
         .rst(wr_rst),
-        .en(wr_ptr__en),
-        .d(wr_ptr__nxt),
+        .en(wr_ptr_en),
+        .d(wr_ptr_nxt),
         .q(wr_ptr)
     );
 
     //==============================
-    // d_ff__rd_ptr_gray
+    // u_d_ff_rd_ptr_gray
     //==============================
-    d_ff #(.WIDTH(DEPTH_LOG2+1), .RESET_VALUE(0)) d_ff__rd_ptr_gray
+    d_ff #(.WIDTH(DEPTH_LOG2+1), .RESET_VALUE(0)) u_d_ff_rd_ptr_gray
     (
         .clk(rd_clk),
         .rst(rd_rst),
-        .en(rd_ptr_gray__en),
-        .d(rd_ptr_gray__nxt),
+        .en(rd_ptr_gray_en),
+        .d(rd_ptr_gray_nxt),
         .q(rd_ptr_gray)
     );
 
     //==============================
-    // d_ff__wr_ptr_gray
+    // u_d_ff_wr_ptr_gray
     //==============================
-    d_ff #(.WIDTH(DEPTH_LOG2+1), .RESET_VALUE(0)) d_ff__wr_ptr_gray
+    d_ff #(.WIDTH(DEPTH_LOG2+1), .RESET_VALUE(0)) u_d_ff_wr_ptr_gray
     (
         .clk(wr_clk),
         .rst(wr_rst),
-        .en(wr_ptr_gray__en),
-        .d(wr_ptr_gray__nxt),
+        .en(wr_ptr_gray_en),
+        .d(wr_ptr_gray_nxt),
         .q(wr_ptr_gray)
     );
 
     //==============================
-    // sync__rd_ptr_gray
+    // u_sync_rd_ptr_gray
     //==============================
-    sync #(.WIDTH(DEPTH_LOG2+1)) sync__rd_ptr_gray
+    sync #(.WIDTH(DEPTH_LOG2+1)) u_sync_rd_ptr_gray
     (
         .clk(wr_clk),
         .d(rd_ptr_gray),
@@ -142,9 +142,9 @@ module async_fifo
     );
 
     //==============================
-    // sync__wr_ptr_gray
+    // u_sync_wr_ptr_gray
     //==============================
-    sync #(.WIDTH(DEPTH_LOG2+1)) sync__wr_ptr_gray
+    sync #(.WIDTH(DEPTH_LOG2+1)) u_sync_wr_ptr_gray
     (
         .clk(rd_clk),
         .d(wr_ptr_gray),
