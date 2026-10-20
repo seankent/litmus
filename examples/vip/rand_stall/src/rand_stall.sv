@@ -62,10 +62,10 @@ begin
             in_ready = out_ready;
             out_valid = in_valid;
             out_data = in_valid ? in_data : HOLD_DATA ? data : {WIDTH{1'bx}};
-            data__nxt = in_valid & in_ready ? in_data : data;
+            data__nxt = (in_valid === 1'b1) & (in_ready === 1'b1) ? in_data : data;
             cnt__nxt = rand_cnt - 1;
             state__nxt =
-                in_valid & in_ready & (rand_stall < stall_prob) & (rand_cnt != '0) ? STATE__STALL :
+                (in_valid === 1'b1) & (in_ready === 1'b1) & (rand_stall < stall_prob) & (rand_cnt != '0) ? STATE__STALL :
                 STATE__READY;
         end
 
