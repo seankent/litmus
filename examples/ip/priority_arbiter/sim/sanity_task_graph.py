@@ -1,43 +1,37 @@
 ###########
 # imports #
 ###########
-import litmus
-
-
-#######
-# req #
-#######
-def req(i):
-    return litmus.Transaction(f"req{i}_driver", {})
-
+from litmus import Delay
+from litmus import TaskGraph
+from litmus import Transaction
 
 ##############
 # task_graph #
 ##############
-task_graph = litmus.TaskGraph()
+task_graph = TaskGraph()
 
 task_graph.chain([
     [
-        req(3),
-        req(0),
+        Transaction("req3_driver", {}),
+        Transaction("req0_driver", {}),
     ],
     [
-        req(3),
-        req(2),
-        req(1),
-        req(0),
+        Transaction("req3_driver", {}),
+        Transaction("req2_driver", {}),
+        Transaction("req1_driver", {}),
+        Transaction("req0_driver", {}),
     ],
     [
-        req(1),
+        Transaction("req1_driver", {}),
     ],
-    litmus.Delay("delayer", 1),
+    Delay("delayer", 1),
     [
-        req(2),
-        req(1),
+        Transaction("req2_driver", {}),
+        Transaction("req1_driver", {}),
     ],
     [
-        req(3),
-        req(2),
-        req(0),
+        Transaction("req3_driver", {}),
+        Transaction("req2_driver", {}),
+        Transaction("req0_driver", {}),
     ],
 ])

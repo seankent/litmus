@@ -1,51 +1,35 @@
 ###########
 # imports #
 ###########
-import litmus
-
-
-######
-# wr #
-######
-def wr(addr, data):
-    return litmus.Transaction("wr_driver", {
-        "wr_addr": litmus.Logic.from_int(addr, 2),
-        "wr_data": litmus.Logic.from_int(data, 8),
-    })
-
-
-######
-# rd #
-######
-def rd(addr):
-    return litmus.Transaction("rd_driver", {
-        "rd_addr": litmus.Logic.from_int(addr, 2),
-    })
-
+from litmus import Sample
+from litmus import TaskGraph
+from litmus import Transaction
 
 ##############
 # task_graph #
 ##############
-task_graph = litmus.TaskGraph()
+task_graph = TaskGraph()
 
 task_graph.chain([
-    litmus.Transaction("init_driver", {
-        "memory": [
-            litmus.Logic.from_int(0x01, 8),
-            litmus.Logic.from_int(0x02, 8),
-            litmus.Logic.from_int(0x03, 8),
-            litmus.Logic.from_int(0x04, 8),
-        ],
-    }),
-    litmus.Sample("sampler"),
-    rd(0),
-    rd(1),
-    rd(2),
-    rd(3),
-    wr(0, 0xaa),
-    [wr(1, 0xbb), rd(0)],
-    [wr(2, 0xcc), rd(1)],
-    [wr(3, 0xdd), rd(2)],
-    rd(3),
-    litmus.Sample("sampler"),
+    Transaction("init_driver", {"memory": ["8'h01", "8'h02", "8'h03", "8'h04"]}),
+    Sample("sampler"),
+    Transaction("rd_driver", {"rd_addr": "2'h0"}),
+    Transaction("rd_driver", {"rd_addr": "2'h1"}),
+    Transaction("rd_driver", {"rd_addr": "2'h2"}),
+    Transaction("rd_driver", {"rd_addr": "2'h3"}),
+    Transaction("wr_driver", {"wr_addr": "2'h0", "wr_data": "8'haa"}),
+    [
+        Transaction("wr_driver", {"wr_addr": "2'h1", "wr_data": "8'hbb"}),
+        Transaction("rd_driver", {"rd_addr": "2'h0"}),
+    ],
+    [
+        Transaction("wr_driver", {"wr_addr": "2'h2", "wr_data": "8'hcc"}),
+        Transaction("rd_driver", {"rd_addr": "2'h1"}),
+    ],
+    [
+        Transaction("wr_driver", {"wr_addr": "2'h3", "wr_data": "8'hdd"}),
+        Transaction("rd_driver", {"rd_addr": "2'h2"}),
+    ],
+    Transaction("rd_driver", {"rd_addr": "2'h3"}),
+    Sample("sampler"),
 ])
