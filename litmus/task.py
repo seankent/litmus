@@ -1,3 +1,7 @@
+###########
+# imports #
+###########
+from litmus.logic import Logic
 
 ########
 # Task #
@@ -54,11 +58,39 @@ class Transaction(Task):
 
         Args:
             name (str): The name of the worker that should process the transaction.
-            sigs (dict): Signal name mapped to value.
+            sigs (dict): Signal name mapped to value, as a Verilog literal, a Logic
+                or a list of either.
         """
         super().__init__(name)
 
-        self.sigs = sigs
+        self.sigs = {sig: self.logicify(sigs[sig]) for sig in sigs}
+
+    ############
+    # logicify #
+    ############
+    def logicify(self, value):
+        """
+        Returns a value converted to Logic.
+
+        Args:
+            value (str | Logic | list): A Verilog literal, a Logic or a list of either.
+
+        Returns:
+            Logic | list: The converted value, shaped like the value.
+
+        Raises:
+            TypeError: The value is neither a Verilog literal, a Logic nor a list.
+        """
+        if isinstance(value, list):
+            return [self.logicify(v) for v in value]
+
+        if isinstance(value, str):
+            return Logic.from_literal(value)
+
+        if isinstance(value, Logic):
+            return value
+
+        raise TypeError(f"Expected a Verilog literal or a Logic, got {type(value).__name__}.")
 
     ###########
     # __str__ #
