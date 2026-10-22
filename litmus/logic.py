@@ -444,7 +444,10 @@ class Logic:
                 binstr = binstr.zfill(width)
 
             if len(binstr) > width:
-                raise ValueError(f"Literal '{literal}' wider than declared width {width}.")
+                if set(binstr[:-width]) not in [{"0"}, {"x"}, {"z"}]:
+                    raise ValueError(f"Literal '{literal}' wider than declared width {width}.")
+
+                binstr = binstr[-width:]
 
             return cls(binstr)
 
@@ -468,7 +471,10 @@ class Logic:
                 binstr = binstr.zfill(width)
 
             if len(binstr) > width:
-                raise ValueError(f"Literal '{literal}' wider than declared width {width}.")
+                if set(binstr[:-width]) not in [{"0"}, {"x"}, {"z"}]:
+                    raise ValueError(f"Literal '{literal}' wider than declared width {width}.")
+
+                binstr = binstr[-width:]
 
             return cls(binstr)
 
