@@ -96,6 +96,7 @@ class SdpRamCoordinator(litmus.Coordinator):
 
         args["init_driver"] = {
             "task_graph": test["task_graph"],
+            "log": test["log"],
         }
 
         args["wr_driver"] = {

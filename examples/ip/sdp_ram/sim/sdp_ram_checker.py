@@ -1,0 +1,71 @@
+###########
+# imports #
+###########
+import sys
+import litmus
+
+
+#################
+# SdpRamChecker #
+#################
+class SdpRamChecker(litmus.Checker):
+
+    #########
+    # check #
+    #########
+    def check(self, log):
+        """
+        Returns the failures found in a log.
+
+        Args:
+            log (Log): The log to check.
+
+        Returns:
+            list: A description of each failure, empty if the log passes.
+        """
+        failures = []
+
+        memory = [litmus.Logic("x"*8)]*4
+
+        for time in log.distinct("time"):
+            timeslot_log = log.where("time", time)
+
+            init_entry = timeslot_log.only("name", "init_driver")
+            sampler_entry = timeslot_log.only("name", "sampler")
+            wr_entry = timeslot_log.only("name", "wr_driver")
+            rd_entry = timeslot_log.only("name", "rd_monitor")
+
+            if sampler_entry is not None:
+                memory_actual = sampler_entry["sigs"]["memory"]
+
+                if memory_actual != memory:
+                    failures.append(f"sampler @ {time} ns: expected {memory}, got {memory_actual}")
+
+            if rd_entry is not None:
+                rd_data_expected = memory[int(rd_entry["sigs"]["rd_addr"])]
+                rd_data_actual = rd_entry["sigs"]["rd_data"]
+
+                if rd_data_actual != rd_data_expected:
+                    failures.append(f"rd_monitor @ {time} ns: expected {rd_data_expected}, got {rd_data_actual}")
+
+            if wr_entry is not None:
+                memory[int(wr_entry["sigs"]["wr_addr"])] = wr_entry["sigs"]["wr_data"]
+
+            if init_entry is not None:
+                memory = list(init_entry["sigs"]["memory"])
+
+        return failures
+
+
+########
+# main #
+########
+if __name__ == "__main__":
+    log = litmus.Log.load(sys.argv[1] if len(sys.argv) > 1 else "gen/log.json")
+
+    checker = SdpRamChecker()
+    failures = checker.check(log)
+
+    checker.report(failures)
+
+    sys.exit(1 if failures else 0)
