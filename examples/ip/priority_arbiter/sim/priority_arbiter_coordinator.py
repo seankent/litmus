@@ -5,12 +5,6 @@ import cocotb
 import litmus
 
 
-#####
-# N #
-#####
-N = 4
-
-
 ##############################
 # PriorityArbiterCoordinator #
 ##############################
@@ -21,6 +15,7 @@ class PriorityArbiterCoordinator(litmus.Coordinator):
     ########
     def init(self):
         """
+        Registers the workers.
         """
         self.register(litmus.Clocker(
             name = "clocker",
@@ -29,14 +24,13 @@ class PriorityArbiterCoordinator(litmus.Coordinator):
             },
         ))
 
-        for i in range(N):
-            self.register(litmus.ValidOnlyDriver(
-                name = f"req{i}_driver",
-                handles = {
-                    "clk": cocotb.top.clk,
-                    "valid": cocotb.top.req[i],
-                },
-            ))
+        self.register(litmus.LevelDriver(
+            name = "req_driver",
+            handles = {
+                "clk": cocotb.top.clk,
+                "req": cocotb.top.req,
+            },
+        ))
 
         self.register(litmus.LevelMonitor(
             name = "monitor",
@@ -44,13 +38,6 @@ class PriorityArbiterCoordinator(litmus.Coordinator):
                 "clk": cocotb.top.clk,
                 "req": cocotb.top.req,
                 "gnt": cocotb.top.gnt,
-            },
-        ))
-
-        self.register(litmus.Delayer(
-            name = "delayer",
-            handles = {
-                "clk": cocotb.top.clk,
             },
         ))
 
@@ -67,39 +54,3 @@ class PriorityArbiterCoordinator(litmus.Coordinator):
                 "clk": cocotb.top.clk,
             },
         ))
-
-    ########
-    # args #
-    ########
-    def args(self, test):
-        """
-        """
-        args = {}
-
-        args["clocker"] = {
-            "period": 2,
-        }
-
-        for i in range(N):
-            args[f"req{i}_driver"] = {
-                "task_graph": test["task_graph"],
-            }
-
-        args["delayer"] = {
-            "task_graph": test["task_graph"],
-        }
-
-        args["monitor"] = {
-            "log": test["log"],
-        }
-
-        args["finisher"] = {
-            "task_graph": test["task_graph"],
-            "drain": test.get("drain", 2),
-        }
-
-        args["watchdog"] = {
-            "timeout": test.get("timeout", 1000),
-        }
-
-        return args

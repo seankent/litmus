@@ -5,12 +5,12 @@ from litmus import Delay
 from litmus import TaskGraph
 from litmus import Transaction
 
-##############
-# task_graph #
-##############
-task_graph = TaskGraph()
+#########
+# graph #
+#########
+graph = TaskGraph()
 
-task_graph.chain([
+graph.chain([
     Transaction("rst_driver", {"rst": "1'b1"}),
     Transaction("rst_driver", {"rst": "1'b0"}),
     Transaction("d_driver", {"d": "8'ha0"}),

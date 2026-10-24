@@ -4,7 +4,8 @@
 import cocotb
 import litmus
 import os
-import sanity_task_graph
+import task_graph
+from sdp_ram_checker import SdpRamChecker
 from sdp_ram_coordinator import SdpRamCoordinator
 
 
@@ -14,17 +15,26 @@ from sdp_ram_coordinator import SdpRamCoordinator
 @cocotb.test()
 async def test(top):
     coordinator = SdpRamCoordinator()
+    checker = SdpRamChecker()
 
     log = litmus.Log()
-    task_graph = sanity_task_graph.task_graph.copy()
+    graph = task_graph.graph.copy()
 
-    test = {
-        "name": "sanity",
-        "task_graph": task_graph,
-        "log": log,
-    }
-
-    await coordinator.run(test)
+    await coordinator.run({
+        "clocker": {"period": 2},
+        "wr_driver": {"task_graph": graph},
+        "rd_driver": {"task_graph": graph},
+        "wr_monitor": {"log": log},
+        "rd_monitor": {"log": log},
+        "sampler": {"task_graph": graph, "log": log},
+        "finisher": {"task_graph": graph, "drain": 5},
+        "watchdog": {"timeout": 1000},
+    })
 
     if "LITMUS_LOG_FILE" in os.environ:
         log.dump(os.environ["LITMUS_LOG_FILE"])
+
+    failures = checker.check(log)
+    checker.report(failures)
+
+    assert failures == []
