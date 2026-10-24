@@ -80,6 +80,21 @@ class Worker:
         else:
             return Logic(str(handle.value).lower())
 
+    ########
+    # fail #
+    ########
+    def fail(self, msg):
+        """
+        Fails the test.
+
+        Args:
+            msg (str): What went wrong.
+
+        Raises:
+            AssertionError: Always.
+        """
+        raise AssertionError(f"{self.name}: {msg}")
+
     #######
     # run #
     #######
