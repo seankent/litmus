@@ -46,7 +46,11 @@ class LevelMonitor(Monitor):
                 if sig != "clk":
                     sigs[sig] = self.get(self.handles[sig])
 
-            log.append(self.name, sigs)
+            log.append({
+                "time": cocotb.utils.get_sim_time("ns"),
+                "name": self.name,
+                "sigs": sigs,
+            })
 
 
 ####################
@@ -76,7 +80,11 @@ class ValidOnlyMonitor(Monitor):
                     if sig not in {"clk", "valid"}:
                         sigs[sig] = self.get(self.handles[sig])
 
-                log.append(self.name, sigs)
+                log.append({
+                    "time": cocotb.utils.get_sim_time("ns"),
+                    "name": self.name,
+                    "sigs": sigs,
+                })
 
 
 #####################
@@ -107,4 +115,8 @@ class ValidReadyMonitor(Monitor):
                     if sig not in {"clk", "valid", "ready"}:
                         sigs[sig] = self.get(self.handles[sig])
 
-                log.append(self.name, sigs)
+                log.append({
+                    "time": cocotb.utils.get_sim_time("ns"),
+                    "name": self.name,
+                    "sigs": sigs,
+                })
