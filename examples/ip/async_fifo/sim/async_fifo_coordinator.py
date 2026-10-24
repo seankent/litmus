@@ -15,6 +15,7 @@ class AsyncFifoCoordinator(litmus.Coordinator):
     ########
     def init(self):
         """
+        Registers the workers.
         """
         self.register(litmus.Clocker(
             name = "wr_clocker",
@@ -84,12 +85,22 @@ class AsyncFifoCoordinator(litmus.Coordinator):
         ))
 
         self.register(litmus.ValidReadyMonitor(
+            name = "wr_monitor",
+            handles = {
+                "clk": cocotb.top.wr_clk,
+                "valid": cocotb.top.wr_valid,
+                "ready": cocotb.top.wr_ready,
+                "wr_data": cocotb.top.wr_data,
+            },
+        ))
+
+        self.register(litmus.ValidReadyMonitor(
             name = "rd_monitor",
             handles = {
                 "clk": cocotb.top.rd_clk,
-                "valid": cocotb.top.tb_rd_valid,
-                "ready": cocotb.top.tb_rd_ready,
-                "rd_data": cocotb.top.tb_rd_data,
+                "valid": cocotb.top.rd_valid,
+                "ready": cocotb.top.rd_ready,
+                "rd_data": cocotb.top.rd_data,
             },
         ))
 
@@ -106,59 +117,3 @@ class AsyncFifoCoordinator(litmus.Coordinator):
                 "clk": cocotb.top.wr_clk,
             },
         ))
-
-    ########
-    # args #
-    ########
-    def args(self, test):
-        """
-        """
-        args = {}
-
-        args["wr_clocker"] = {
-            "period": 2,
-        }
-
-        args["rd_clocker"] = {
-            "period": 3,
-        }
-
-        args["wr_delayer"] = {
-            "task_graph": test["task_graph"],
-        }
-
-        args["rd_delayer"] = {
-            "task_graph": test["task_graph"],
-        }
-
-        args["wr_rst_driver"] = {
-            "task_graph": test["task_graph"],
-        }
-
-        args["rd_rst_driver"] = {
-            "task_graph": test["task_graph"],
-        }
-
-        args["init_driver"] = {
-            "task_graph": test["task_graph"],
-        }
-
-        args["wr_driver"] = {
-            "task_graph": test["task_graph"],
-            "log": test["log"],
-        }
-
-        args["rd_monitor"] = {
-            "log": test["log"],
-        }
-
-        args["finisher"] = {
-            "task_graph": test["task_graph"],
-            "drain": test.get("drain", 20),
-        }
-
-        args["watchdog"] = {
-            "timeout": test.get("timeout", 1000),
-        }
-
-        return args

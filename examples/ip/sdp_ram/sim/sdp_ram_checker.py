@@ -30,9 +30,8 @@ class SdpRamChecker(litmus.Checker):
         for time in log.distinct("time"):
             timeslot_log = log.where("time", time)
 
-            init_entry = timeslot_log.only("name", "init_driver")
             sampler_entry = timeslot_log.only("name", "sampler")
-            wr_entry = timeslot_log.only("name", "wr_driver")
+            wr_entry = timeslot_log.only("name", "wr_monitor")
             rd_entry = timeslot_log.only("name", "rd_monitor")
 
             if sampler_entry is not None:
@@ -50,9 +49,6 @@ class SdpRamChecker(litmus.Checker):
 
             if wr_entry is not None:
                 memory[int(wr_entry["sigs"]["wr_addr"])] = wr_entry["sigs"]["wr_data"]
-
-            if init_entry is not None:
-                memory = list(init_entry["sigs"]["memory"])
 
         return failures
 

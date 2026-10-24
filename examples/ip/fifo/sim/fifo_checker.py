@@ -25,7 +25,7 @@ class FifoChecker(litmus.Checker):
         """
         failures = []
 
-        wr_log = log.where("name", "wr_driver")
+        wr_log = log.where("name", "wr_monitor")
         rd_log = log.where("name", "rd_monitor")
 
         if len(wr_log) != len(rd_log):

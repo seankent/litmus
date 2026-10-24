@@ -15,6 +15,7 @@ class DffCoordinator(litmus.Coordinator):
     ########
     def init(self):
         """
+        Registers the workers.
         """
         self.register(litmus.Clocker(
             name = "clocker",
@@ -33,6 +34,15 @@ class DffCoordinator(litmus.Coordinator):
 
         self.register(litmus.ValidOnlyDriver(
             name = "d_driver",
+            handles = {
+                "clk": cocotb.top.clk,
+                "valid": cocotb.top.en,
+                "d": cocotb.top.d,
+            },
+        ))
+
+        self.register(litmus.ValidOnlyMonitor(
+            name = "d_monitor",
             handles = {
                 "clk": cocotb.top.clk,
                 "valid": cocotb.top.en,
@@ -69,42 +79,4 @@ class DffCoordinator(litmus.Coordinator):
             },
         ))
 
-    ########
-    # args #
-    ########
-    def args(self, test):
-        """
-        """
-        args = {}
-
-        args["clocker"] = {
-            "period": 2,
-        }
-
-        args["rst_driver"] = {
-            "task_graph": test["task_graph"],
-        }
-
-        args["d_driver"] = {
-            "task_graph": test["task_graph"],
-        }
-
-        args["q_monitor"] = {
-            "log": test["log"],
-        }
-
-        args["delayer"] = {
-            "task_graph": test["task_graph"],
-        }
-
-        args["finisher"] = {
-            "task_graph": test["task_graph"],
-            "drain": test.get("drain", 5),
-        }
-
-        args["watchdog"] = {
-            "timeout": test.get("timeout", 1000),
-        }
-
-        return args
 
