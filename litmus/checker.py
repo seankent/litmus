@@ -3,6 +3,18 @@
 ###########
 class Checker:
 
+    ############
+    # __init__ #
+    ############
+    def __init__(self, params = None):
+        """
+        Constructs a checker.
+
+        Args:
+            params (dict): The parameters to check against.
+        """
+        self.params = params or {}
+
     #########
     # check #
     #########

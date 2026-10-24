@@ -1,14 +1,7 @@
 ###########
 # imports #
 ###########
-import sys
 import litmus
-
-
-#####
-# N #
-#####
-N = 4
 
 
 ###########################
@@ -44,25 +37,11 @@ class PriorityArbiterChecker(litmus.Checker):
                 continue
 
             if int(req) == 0:
-                gnt_expected = litmus.Logic.from_int(0, N)
+                gnt_expected = litmus.Logic.from_int(0, self.params["N"])
             else:
-                gnt_expected = litmus.Logic.from_int(1 << (int(req).bit_length() - 1), N)
+                gnt_expected = litmus.Logic.from_int(1 << (int(req).bit_length() - 1), self.params["N"])
 
             if gnt != gnt_expected:
                 failures.append(f"monitor @ {entry['time']} ns (req {req}): expected {gnt_expected}, got {gnt}")
 
         return failures
-
-
-########
-# main #
-########
-if __name__ == "__main__":
-    log = litmus.Log.load(sys.argv[1] if len(sys.argv) > 1 else "gen/log.json")
-
-    checker = PriorityArbiterChecker()
-    failures = checker.check(log)
-
-    checker.report(failures)
-
-    sys.exit(1 if failures else 0)
