@@ -3,7 +3,6 @@
 ###########
 from litmus import utils
 from litmus.logic import Logic
-import cocotb
 import json
 
 
@@ -24,19 +23,14 @@ class Log:
     ##########
     # append #
     ##########
-    def append(self, name, sigs):
+    def append(self, entry):
         """
-        Adds an entry, stamped with the current simulation time.
+        Adds an entry.
 
         Args:
-            name (str): The name of the worker the entry came from.
-            sigs (dict): Signal name mapped to value.
+            entry (dict): The fields to record.
         """
-        self.entries.append({
-            "time": cocotb.utils.get_sim_time("ns"),
-            "name": name,
-            "sigs": sigs,
-        })
+        self.entries.append(entry)
 
     ###########
     # __len__ #
@@ -55,36 +49,162 @@ class Log:
     ###############
     def __getitem__(self, index):
         """
-        Returns an entry or a range of entries.
+        Returns an entry, or a log holding a range of them.
 
         Args:
             index (int | slice): An entry position, or a slice of them.
 
         Returns:
-            dict | list: The selected entries.
+            dict | Log: The entry at that position, or a log holding the sliced entries.
         """
+        if isinstance(index, slice):
+            log = Log()
+            log.entries = self.entries[index]
+
+            return log
+
         return self.entries[index]
 
-    ##########
-    # filter #
-    ##########
-    def filter(self, name):
+    ############
+    # __iter__ #
+    ############
+    def __iter__(self):
         """
-        Returns every entry from a given worker.
-
-        Args:
-            name (str): The worker name to match.
+        Returns an iterator over the entries.
 
         Returns:
-            list: Every entry from that worker.
+            iterator: An iterator over the entries.
         """
-        entries = []
+        return iter(self.entries)
+
+    ##########
+    # lookup #
+    ##########
+    def lookup(self, entry, path):
+        """
+        Returns whether an entry holds a path, and the value it holds there.
+
+        Args:
+            entry (dict): The entry to read.
+            path (object | list): The key to read, or the keys to follow in turn.
+
+        Returns:
+            tuple: True and the value if the entry holds the path, False and None if not.
+        """
+        if not isinstance(path, list):
+            path = [path]
+
+        value = entry
+
+        for key in path:
+            if not isinstance(value, dict) or key not in value:
+                return False, None
+
+            value = value[key]
+
+        return True, value
+
+    #########
+    # where #
+    #########
+    def where(self, path, values):
+        """
+        Returns a log holding every entry that holds a value at a path.
+
+        Args:
+            path (object | list): The key to read, or the keys to follow in turn.
+            values (object | set): The value an entry must hold, or a set of values it
+                must hold one of.
+
+        Returns:
+            Log: The matching entries, in the order they were logged.
+        """
+        log = Log()
+
+        if isinstance(values, set):
+            values = list(values)
+        else:
+            values = [values]
 
         for entry in self.entries:
-            if entry["name"] == name:
-                entries.append(entry)
+            found, value = self.lookup(entry, path)
 
-        return entries
+            if found and value in values:
+                log.append(entry)
+
+        return log
+
+    ########
+    # only #
+    ########
+    def only(self, path, values):
+        """
+        Returns the one entry that holds a value at a path.
+
+        Args:
+            path (object | list): The key to read, or the keys to follow in turn.
+            values (object | set): The value an entry must hold, or a set of values it
+                must hold one of.
+
+        Returns:
+            dict: The matching entry, or None if no entry matches.
+
+        Raises:
+            ValueError: More than one entry matches.
+        """
+        log = self.where(path, values)
+
+        if len(log) > 1:
+            raise ValueError(f"{len(log)} entries hold {values} at {path}, expected one.")
+
+        if len(log) == 0:
+            return None
+
+        return log[0]
+
+    ##########
+    # select #
+    ##########
+    def select(self, path):
+        """
+        Returns the value every entry holds at a path.
+
+        Args:
+            path (object | list): The key to read, or the keys to follow in turn.
+
+        Returns:
+            list: The value at that path from each entry that holds one.
+        """
+        values = []
+
+        for entry in self.entries:
+            found, value = self.lookup(entry, path)
+
+            if found:
+                values.append(value)
+
+        return values
+
+    ############
+    # distinct #
+    ############
+    def distinct(self, path):
+        """
+        Returns each value held at a path, once.
+
+        Args:
+            path (object | list): The key to read, or the keys to follow in turn.
+
+        Returns:
+            list: Each distinct value at that path, in the order it was first logged.
+        """
+        values = []
+
+        for value in self.select(path):
+            if value not in values:
+                values.append(value)
+
+        return values
 
     ###########
     # jsonify #
@@ -114,14 +234,22 @@ class Log:
     #############
     def unjsonify(self, value):
         """
-        Returns a binary literal as a Logic.
+        Returns a Verilog literal as a Logic, leaving any other value alone.
 
         Args:
-            value (str | list): The literal to convert.
+            value (object): The value to convert.
 
         Returns:
-            Logic | list: The value, shaped like the literal.
+            object: The value, shaped like the value, with every literal parsed.
         """
+        if isinstance(value, dict):
+            values = {}
+
+            for key in value:
+                values[key] = self.unjsonify(value[key])
+
+            return values
+
         if isinstance(value, list):
             values = []
 
@@ -129,8 +257,14 @@ class Log:
                 values.append(self.unjsonify(v))
 
             return values
-        else:
-            return Logic.from_literal(value)
+
+        if isinstance(value, str):
+            try:
+                return Logic.from_literal(value)
+            except ValueError:
+                return value
+
+        return value
 
     ########
     # dump #
@@ -156,20 +290,11 @@ class Log:
             path (str): Path to the file.
 
         Returns:
-            Log: The log, with signal values parsed back into Logic.
+            Log: The log, with every Verilog literal parsed back into Logic.
         """
         log = cls()
 
         for entry in json.loads(utils.read(path)):
-            sigs = {}
-
-            for sig in entry["sigs"]:
-                sigs[sig] = log.unjsonify(entry["sigs"][sig])
-
-            log.entries.append({
-                "time": entry["time"],
-                "name": entry["name"],
-                "sigs": sigs,
-            })
+            log.append(log.unjsonify(entry))
 
         return log

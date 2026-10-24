@@ -32,7 +32,11 @@ class Sampler(Worker):
                     if sig != "clk":
                         sigs[sig] = self.get(self.handles[sig])
 
-                log.append(self.name, sigs)
+                log.append({
+                    "time": cocotb.utils.get_sim_time("ns"),
+                    "name": self.name,
+                    "sigs": sigs,
+                })
                 task_graph.retire(u)
 
             claimed = []

@@ -48,7 +48,11 @@ class LevelDriver(Driver):
 
             if u is not None:
                 if log is not None:
-                    log.append(self.name, u.sigs)
+                    log.append({
+                        "time": cocotb.utils.get_sim_time("ns"),
+                        "name": self.name,
+                        "sigs": u.sigs,
+                    })
 
                 task_graph.retire(u)
                 u = None
@@ -98,7 +102,11 @@ class ValidOnlyDriver(Driver):
 
             if u is not None:
                 if log is not None:
-                    log.append(self.name, u.sigs)
+                    log.append({
+                        "time": cocotb.utils.get_sim_time("ns"),
+                        "name": self.name,
+                        "sigs": u.sigs,
+                    })
 
                 task_graph.retire(u)
                 u = None
@@ -164,7 +172,11 @@ class ValidReadyDriver(Driver):
 
                 if ready:
                     if log is not None:
-                        log.append(self.name, u.sigs)
+                        log.append({
+                            "time": cocotb.utils.get_sim_time("ns"),
+                            "name": self.name,
+                            "sigs": u.sigs,
+                        })
 
                     task_graph.retire(u)
                     u = None
