@@ -1,6 +1,7 @@
 ###########
 # imports #
 ###########
+from litmus.checker import Checker
 from litmus.clocker import Clocker
 from litmus.coordinator import Coordinator
 from litmus.delayer import Delayer
