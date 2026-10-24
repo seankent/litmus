@@ -6,15 +6,12 @@ class Checker:
     #########
     # check #
     #########
-    def check(self, log):
+    def check(self, *args, **kwargs):
         """
-        Returns the failures found in a log, overridden by each subclass.
-
-        Args:
-            log (Log): The log to check.
+        Returns the failures found, overridden by each subclass.
 
         Returns:
-            list: A description of each failure, empty if the log passes.
+            list: A description of each failure, empty if nothing failed.
         """
         return []
 
