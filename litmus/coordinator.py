@@ -12,10 +12,14 @@ class Coordinator:
     ############
     # __init__ #
     ############
-    def __init__(self):
+    def __init__(self, params = None):
         """
         Constructs a coordinator, calling init() to register its workers.
+
+        Args:
+            params (dict): The parameters to register the workers from.
         """
+        self.params = params or {}
         self.workers = {}
 
         self.init()

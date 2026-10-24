@@ -14,8 +14,8 @@ import task_graph
 ########
 @cocotb.test()
 async def test(top):
-    coordinator = PriorityArbiterCoordinator()
-    checker = PriorityArbiterChecker()
+    coordinator = PriorityArbiterCoordinator({"N": 4})
+    checker = PriorityArbiterChecker({"N": 4})
 
     log = litmus.Log()
     graph = task_graph.graph.copy()

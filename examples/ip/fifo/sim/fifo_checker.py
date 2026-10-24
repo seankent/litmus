@@ -1,7 +1,6 @@
 ###########
 # imports #
 ###########
-import sys
 import litmus
 
 
@@ -39,17 +38,3 @@ class FifoChecker(litmus.Checker):
                 failures.append(f"rd_monitor[{i}] @ {rd_log[i]['time']} ns: expected {wr_data}, got {rd_data}")
 
         return failures
-
-
-########
-# main #
-########
-if __name__ == "__main__":
-    log = litmus.Log.load(sys.argv[1] if len(sys.argv) > 1 else "gen/log.json")
-
-    checker = FifoChecker()
-    failures = checker.check(log)
-
-    checker.report(failures)
-
-    sys.exit(1 if failures else 0)
