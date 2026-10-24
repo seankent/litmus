@@ -15,7 +15,7 @@ class Watchdog(Worker):
     #######
     async def run(self, timeout = None):
         """
-        Ends the test if it runs longer than the timeout.
+        Fails the test if it runs longer than the timeout.
 
         Args:
             timeout (int): Cycles to allow, or None for no limit.
@@ -24,8 +24,7 @@ class Watchdog(Worker):
 
         while True:
             if timeout is not None and cycle >= timeout:
-                print(f"[ERROR] Watchdog '{self.name}' timed out after {timeout} cycles.")
-                break
+                self.fail(f"timed out after {timeout} cycles")
 
             await cocotb.triggers.RisingEdge(self.handles["clk"])
 
