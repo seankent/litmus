@@ -41,33 +41,16 @@ class Coordinator:
         """
         self.workers[worker.name] = worker 
 
-    ########
-    # args #
-    ########
-    def args(self, test):
-        """
-        Returns the keyword arguments for each worker, overridden by each subclass.
-
-        Args:
-            test (dict): The test being run.
-
-        Returns:
-            dict: Worker name mapped to the keyword arguments for its run().
-        """
-        return {}
-
     #######
     # run #
     #######
-    async def run(self, test):
+    async def run(self, args):
         """
         Runs the test, ending when the first worker finishes and cancelling the rest.
 
         Args:
-            test (dict): The test to run.
+            args (dict): Worker name mapped to the args for its run().
         """
-        args = self.args(test)
-
         coros = []
 
         for name in self.workers:
