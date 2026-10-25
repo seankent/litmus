@@ -22,12 +22,16 @@ async def test(top):
 
     await coordinator.run({
         "clocker": {"period": 2},
-        "init_driver": {"task_graph": graph},
         "rst_driver": {"task_graph": graph},
+        "delayer": {"task_graph": graph},
         "wr_driver": {"task_graph": graph},
+        "rd_ready_randomizer": {
+            "value_dist": litmus.dist.Choice({1: 30, 0: 70}),
+            "duration_dist": litmus.dist.Uniform(1, 3),
+        },
         "wr_monitor": {"log": log},
         "rd_monitor": {"log": log},
-        "finisher": {"task_graph": graph, "drain": 5},
+        "finisher": {"task_graph": graph, "drain": 50},
         "watchdog": {"timeout": 1000},
     })
 
