@@ -30,5 +30,8 @@ include $(shell cocotb-config --makefiles)/Makefile.sim
 # waves
 #==============================================
 .PHONY: waves
-waves: sim
+waves: $(SIM_BUILD)/$(TOPLEVEL).fst
 	gtkwave $(SIM_BUILD)/$(TOPLEVEL).fst &
+
+$(SIM_BUILD)/$(TOPLEVEL).fst: $(VERILOG_SOURCES) $(wildcard $(PWD)/*.py)
+	-@$(MAKE) --no-print-directory sim
