@@ -83,7 +83,7 @@ class ValidOnlyDriver(Driver):
 
         for sig in self.handles:
             if sig not in {"clk", "valid"}:
-                self.setx(self.handles[sig])
+                self.set_x(self.handles[sig])
 
         u = None
 
@@ -113,7 +113,7 @@ class ValidOnlyDriver(Driver):
 
                 for sig in self.handles:
                     if sig not in {"clk", "valid"}:
-                        self.setx(self.handles[sig])
+                        self.set_x(self.handles[sig])
 
 
 ####################
@@ -138,7 +138,7 @@ class ValidReadyDriver(Driver):
 
         for sig in self.handles:
             if sig not in {"clk", "valid", "ready"}:
-                self.setx(self.handles[sig])
+                self.set_x(self.handles[sig])
 
         u = None
 
@@ -171,4 +171,4 @@ class ValidReadyDriver(Driver):
 
                 for sig in self.handles:
                     if sig not in {"clk", "valid", "ready"}:
-                        self.setx(self.handles[sig])
+                        self.set_x(self.handles[sig])
