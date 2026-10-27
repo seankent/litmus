@@ -24,6 +24,14 @@ class SdpRamCoordinator(litmus.Coordinator):
             },
         ))
 
+        self.register(litmus.LevelDriver(
+            name = "preloader",
+            handles = {
+                "clk": cocotb.top.clk,
+                "memory": cocotb.top.u_dut.memory,
+            },
+        ))
+
         self.register(litmus.ValidOnlyDriver(
             name = "wr_driver",
             handles = {

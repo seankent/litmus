@@ -14,14 +14,17 @@ from sdp_ram_coordinator import SdpRamCoordinator
 ########
 @cocotb.test()
 async def test(top):
-    coordinator = SdpRamCoordinator()
-    checker = SdpRamChecker()
+    params = {"WIDTH": 8, "DEPTH": 4}
+
+    coordinator = SdpRamCoordinator(params)
+    checker = SdpRamChecker(params)
 
     log = litmus.Log()
     graph = task_graph.graph.copy()
 
     await coordinator.run({
         "clocker": {"period": 2},
+        "preloader": {"task_graph": graph},
         "wr_driver": {"task_graph": graph},
         "rd_driver": {"task_graph": graph},
         "wr_monitor": {"log": log},
