@@ -41,15 +41,9 @@ class LevelDriver(Driver):
         """
         u = None
 
+        await cocotb.triggers.ReadWrite()
+
         while True:
-            await cocotb.triggers.RisingEdge(self.handles["clk"])
-
-            if u is not None:
-                task_graph.retire(u)
-                u = None
-
-            await cocotb.triggers.ReadWrite()
-
             if u is None:
                 us = task_graph.ready(self.name)
 
@@ -60,6 +54,14 @@ class LevelDriver(Driver):
                 for sig in self.handles:
                     if sig != "clk":
                         self.set(self.handles[sig], u.sigs[sig])
+
+            await cocotb.triggers.RisingEdge(self.handles["clk"])
+
+            if u is not None:
+                task_graph.retire(u)
+                u = None
+
+            await cocotb.triggers.ReadWrite()
 
 
 ###################
@@ -77,25 +79,11 @@ class ValidOnlyDriver(Driver):
         Args:
             task_graph (TaskGraph): The graph to claim tasks from.
         """
-        await cocotb.triggers.ReadWrite()
-
-        self.set(self.handles["valid"], Logic("0"))
-
-        for sig in self.handles:
-            if sig not in {"clk", "valid"}:
-                self.set_x(self.handles[sig])
-
         u = None
 
+        await cocotb.triggers.ReadWrite()
+
         while True:
-            await cocotb.triggers.RisingEdge(self.handles["clk"])
-
-            if u is not None:
-                task_graph.retire(u)
-                u = None
-
-            await cocotb.triggers.ReadWrite()
-
             if u is None:
                 us = task_graph.ready(self.name)
 
@@ -114,6 +102,14 @@ class ValidOnlyDriver(Driver):
                 for sig in self.handles:
                     if sig not in {"clk", "valid"}:
                         self.set_x(self.handles[sig])
+
+            await cocotb.triggers.RisingEdge(self.handles["clk"])
+
+            if u is not None:
+                task_graph.retire(u)
+                u = None
+
+            await cocotb.triggers.ReadWrite()
 
 
 ####################
@@ -132,28 +128,11 @@ class ValidReadyDriver(Driver):
         Args:
             task_graph (TaskGraph): The graph to claim tasks from.
         """
-        await cocotb.triggers.ReadWrite()
-
-        self.set(self.handles["valid"], Logic("0"))
-
-        for sig in self.handles:
-            if sig not in {"clk", "valid", "ready"}:
-                self.set_x(self.handles[sig])
-
         u = None
 
+        await cocotb.triggers.ReadWrite()
+
         while True:
-            await cocotb.triggers.RisingEdge(self.handles["clk"])
-
-            if u is not None:
-                ready = self.get(self.handles["ready"])
-
-                if ready:
-                    task_graph.retire(u)
-                    u = None
-
-            await cocotb.triggers.ReadWrite()
-
             if u is None:
                 us = task_graph.ready(self.name)
 
@@ -172,3 +151,14 @@ class ValidReadyDriver(Driver):
                 for sig in self.handles:
                     if sig not in {"clk", "valid", "ready"}:
                         self.set_x(self.handles[sig])
+
+            await cocotb.triggers.RisingEdge(self.handles["clk"])
+
+            if u is not None:
+                ready = self.get(self.handles["ready"])
+
+                if ready:
+                    task_graph.retire(u)
+                    u = None
+
+            await cocotb.triggers.ReadWrite()
