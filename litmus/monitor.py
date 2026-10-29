@@ -53,6 +53,42 @@ class LevelMonitor(Monitor):
             })
 
 
+#####################
+# TransitionMonitor #
+#####################
+class TransitionMonitor(Monitor):
+
+    #######
+    # run #
+    #######
+    async def run(self, log):
+        """
+        Logs signal values in each cycle any of them changes.
+
+        Args:
+            log (Log): The log to write to.
+        """
+        last = None
+
+        while True:
+            await cocotb.triggers.RisingEdge(self.handles["clk"])
+
+            sigs = {}
+
+            for sig in self.handles:
+                if sig != "clk":
+                    sigs[sig] = self.get(self.handles[sig])
+
+            if sigs != last:
+                log.append({
+                    "time": cocotb.utils.get_sim_time("ns"),
+                    "name": self.name,
+                    "sigs": sigs,
+                })
+
+                last = sigs
+
+
 ####################
 # ValidOnlyMonitor #
 ####################
