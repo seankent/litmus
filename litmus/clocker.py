@@ -22,4 +22,8 @@ class Clocker(Worker):
             period (int): The clock period.
             unit (str): The time unit the period is given in.
         """
+        self.set(self.handles["clk"], Logic("0"))
+
+        await cocotb.triggers.Timer(period / 2, unit = unit)
+
         await Clock(self.handles["clk"], period, unit = unit).start(start_high = False)
