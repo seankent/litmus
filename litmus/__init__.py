@@ -10,7 +10,7 @@ from litmus.driver import Driver, LevelDriver, ValidOnlyDriver, ValidReadyDriver
 from litmus.finisher import Finisher
 from litmus.log import Log
 from litmus.logic import Logic
-from litmus.monitor import Monitor, LevelMonitor, ValidOnlyMonitor, ValidReadyMonitor
+from litmus.monitor import Monitor, LevelMonitor, TransitionMonitor, ValidOnlyMonitor, ValidReadyMonitor
 from litmus.randomizer import Randomizer
 from litmus.sampler import Sampler
 from litmus.task import Task, Transaction, Delay, Sample
