@@ -4,6 +4,7 @@
 import cocotb
 import litmus
 import os
+from d_ff_checker import DffChecker
 from d_ff_coordinator import DffCoordinator
 import task_graph
 
@@ -13,7 +14,10 @@ import task_graph
 ########
 @cocotb.test()
 async def test(top):
-    coordinator = DffCoordinator()
+    params = {"WIDTH": 8, "RESET_VALUE": 0}
+
+    coordinator = DffCoordinator(params)
+    checker = DffChecker(params)
 
     log = litmus.Log()
     graph = task_graph.graph.copy()
@@ -22,8 +26,7 @@ async def test(top):
         "clocker": {"period": 2},
         "rst_driver": {"task_graph": graph},
         "d_driver": {"task_graph": graph},
-        "d_monitor": {"log": log},
-        "q_monitor": {"log": log},
+        "monitor": {"log": log},
         "delayer": {"task_graph": graph},
         "finisher": {"task_graph": graph, "drain": 5},
         "watchdog": {"timeout": 1000},
@@ -31,3 +34,8 @@ async def test(top):
 
     if "LITMUS_LOG_FILE" in os.environ:
         log.dump(os.environ["LITMUS_LOG_FILE"])
+
+    failures = checker.check(log)
+    checker.report(failures)
+
+    assert failures == []
