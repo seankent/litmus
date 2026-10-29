@@ -29,9 +29,6 @@ class PriorityArbiterChecker(litmus.Checker):
             req = entry["sigs"]["req"]
             gnt = entry["sigs"]["gnt"]
 
-            if req.undef():
-                continue
-
             if gnt.undef():
                 failures.append(f"monitor @ {entry['time']} ns (req {req}): gnt is undefined")
                 continue
