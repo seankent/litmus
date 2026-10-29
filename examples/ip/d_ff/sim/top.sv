@@ -3,7 +3,8 @@
 //==============================================
 module top
 #(
-    parameter WIDTH = 8
+    parameter WIDTH = 8,
+    parameter RESET_VALUE = 0
 )
 ();
 
@@ -16,7 +17,7 @@ module top
     //==============================
     // u_dut
     //==============================
-    d_ff #(.WIDTH(WIDTH), .RESET_VALUE(0)) u_dut
+    d_ff #(.WIDTH(WIDTH), .RESET_VALUE(RESET_VALUE)) u_dut
     (
         .clk(clk),
         .rst(rst),

@@ -41,19 +41,13 @@ class DffCoordinator(litmus.Coordinator):
             },
         ))
 
-        self.register(litmus.ValidOnlyMonitor(
-            name = "d_monitor",
-            handles = {
-                "clk": cocotb.top.clk,
-                "valid": cocotb.top.en,
-                "d": cocotb.top.d,
-            },
-        ))
-
         self.register(litmus.LevelMonitor(
-            name = "q_monitor",
+            name = "monitor",
             handles = {
                 "clk": cocotb.top.clk,
+                "rst": cocotb.top.rst,
+                "en": cocotb.top.en,
+                "d": cocotb.top.d,
                 "q": cocotb.top.q,
             },
         ))
