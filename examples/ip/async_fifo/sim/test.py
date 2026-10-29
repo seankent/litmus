@@ -5,6 +5,7 @@ import cocotb
 import litmus
 import os
 import task_graph
+from async_fifo_checker import AsyncFifoChecker
 from async_fifo_coordinator import AsyncFifoCoordinator
 
 
@@ -14,6 +15,7 @@ from async_fifo_coordinator import AsyncFifoCoordinator
 @cocotb.test()
 async def test(top):
     coordinator = AsyncFifoCoordinator()
+    checker = AsyncFifoChecker()
 
     log = litmus.Log()
     graph = task_graph.graph.copy()
@@ -38,3 +40,8 @@ async def test(top):
 
     if "LITMUS_LOG_FILE" in os.environ:
         log.dump(os.environ["LITMUS_LOG_FILE"])
+
+    failures = checker.check(log)
+    checker.report(failures)
+
+    assert failures == []
