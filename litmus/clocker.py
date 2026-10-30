@@ -14,7 +14,7 @@ class Clocker(Worker):
     #######
     # run #
     #######
-    async def run(self, period = 2, unit = "ns"):
+    async def run(self, period = 10, unit = "ns"):
         """
         Generates a clock signal.
 

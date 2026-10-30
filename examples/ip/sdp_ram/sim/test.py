@@ -23,7 +23,7 @@ async def test(top):
     graph = task_graph.graph.copy()
 
     await coordinator.run({
-        "clocker": {"period": 2},
+        "clocker": {"period": 10},
         "preloader": {"task_graph": graph},
         "wr_driver": {"task_graph": graph},
         "rd_driver": {"task_graph": graph},
