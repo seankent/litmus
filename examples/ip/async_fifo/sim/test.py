@@ -21,8 +21,8 @@ async def test(top):
     graph = task_graph.graph.copy()
 
     await coordinator.run({
-        "wr_clocker": {"period": 2},
-        "rd_clocker": {"period": 3},
+        "wr_clocker": {"period": 10},
+        "rd_clocker": {"period": 14},
         "wr_delayer": {"task_graph": graph},
         "rd_delayer": {"task_graph": graph},
         "wr_rst_driver": {"task_graph": graph},

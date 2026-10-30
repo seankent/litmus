@@ -21,7 +21,7 @@ async def test(top):
     graph = task_graph.graph.copy()
 
     await coordinator.run({
-        "clocker": {"period": 2},
+        "clocker": {"period": 10},
         "req_driver": {"task_graph": graph},
         "monitor": {"log": log},
         "finisher": {"task_graph": graph, "drain": 2},
