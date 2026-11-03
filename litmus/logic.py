@@ -18,6 +18,9 @@ class Logic:
         Args:
             binstr (str): The value as a string of 0, 1, x and z, e.g. "10xz".
         """
+        if not isinstance(binstr, str):
+            raise TypeError(f"Expected a str, got {type(binstr).__name__}.")
+
         if not re.fullmatch(r"[01xz]+", binstr):
             raise ValueError(f"Invalid binstr: '{binstr}'")
 
@@ -55,12 +58,12 @@ class Logic:
     ############
     def __bool__(self):
         """
-        Returns True if any bit is 1 and the value is defined.
+        Returns True if any bit is 1.
 
         Returns:
-            bool: True if any bit is 1 and the value is defined.
+            bool: True if any bit is 1.
         """
-        if "1" in self.binstr and not self.undef():
+        if "1" in self.binstr:
             return True
         else:
             return False
@@ -137,24 +140,24 @@ class Logic:
     ###########
     def __str__(self):
         """
-        Returns the hex literal, e.g. 8'hab.
+        Returns the binary literal, e.g. 8'b10101011.
 
         Returns:
-            str: The hex literal.
+            str: The binary literal.
         """
-        return self.hex()
+        return self.bin()
 
     ############
     # __repr__ #
     ############
     def __repr__(self):
         """
-        Returns the hex literal, e.g. 8'hab.
+        Returns the binary literal, e.g. 8'b10101011.
 
         Returns:
-            str: The hex literal, which is lossy for x and z.
+            str: The binary literal, which is lossless for x and z.
         """
-        return self.hex()
+        return self.bin()
 
     ############
     # __hash__ #
@@ -213,16 +216,23 @@ class Logic:
             if index.step is not None:
                 raise ValueError("Bit slices do not support a step.")
 
-            if index.start is None or index.stop is None:
-                raise ValueError("Bit slices require explicit bounds, e.g. value[7:4].")
+            if index.start is None:
+                start = len(self) - 1
+            else:
+                start = index.start
 
-            if index.start < index.stop:
-                raise ValueError(f"Bit slice [{index.start}:{index.stop}] must be descending.")
+            if index.stop is None:
+                stop = 0
+            else:
+                stop = index.stop
 
-            if index.stop < 0 or index.start >= len(self):
-                raise IndexError(f"Bit slice [{index.start}:{index.stop}] out of range for width {len(self)}.")
+            if start < stop:
+                raise ValueError(f"Bit slice [{start}:{stop}] must be descending.")
 
-            return Logic(self.binstr[len(self) - index.start - 1:len(self) - index.stop])
+            if stop < 0 or start >= len(self):
+                raise IndexError(f"Bit slice [{start}:{stop}] out of range for width {len(self)}.")
+
+            return Logic(self.binstr[len(self) - start - 1:len(self) - stop])
 
         else:
             raise TypeError(f"Invalid index type: {type(index).__name__}")
